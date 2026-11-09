@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="id"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Absensi & Payroll</title>
+<link rel="icon" href="img/logo.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.json" id="mf" crossorigin="use-credentials">
+<meta name="theme-color" content="#0d9488"><meta name="application-name" content="Absensi">
+<script>window.__pwaEv=null;addEventListener("beforeinstallprompt",function(e){e.preventDefault();window.__pwaEv=e;try{dispatchEvent(new Event("pwa-ready"))}catch(x){}});</script>
+<meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Absensi">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png" id="ati">
+<link rel="stylesheet" href="css/style.css?v=75">
+<style>html.boot #login,html.boot #shell{visibility:hidden}.nfdd{display:none}.nfdd.show{display:block}[hidden]{display:none!important}.nfbtn svg{width:20px;height:20px}</style>
+<script>document.documentElement.classList.add("boot");setTimeout(function(){document.documentElement.classList.remove("boot")},5000);
+try{var B=JSON.parse(localStorage.getItem("brand")||"null");if(B){var rs=document.documentElement.style;if(B.color)rs.setProperty("--ac",B.color);
+if(B.grad&&B.color&&B.color2&&B.color2!==B.color){rs.setProperty("--ac2",B.color2);rs.setProperty("--grad","linear-gradient(135deg,"+B.color+","+B.color2+")");rs.setProperty("--hero","linear-gradient(120deg,"+B.color+","+B.color2+")");rs.setProperty("--lbg","linear-gradient(160deg,"+B.color+","+B.color2+")")}
+if(B.name)document.title=B.name;if(B.logo){var fi=document.querySelector("link[rel=icon]");fi.removeAttribute("type");fi.href=B.logo}}}catch(e){}</script>
+</head><body>
+<div id="toast"></div>
+<div id="login">
+  <section class="lbrand"><img id="lLogo" src="img/logo.svg" alt=""><h2 id="lName">Absensi & Payroll</h2><p id="lAddr"></p></section>
+  <section class="lform">
+    <div class="lang"><button type="button" class="nfbtn pwabtn" onclick="pwaInstall()" hidden title="Pasang aplikasi" aria-label="Pasang aplikasi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M5 21h14"/></svg></button><select class="langsel" onchange="setLang(this.value)"><option value="id">ID</option><option value="en">EN</option><option value="zh">ZH</option></select></div>
+    <div class="lc"><h1>Selamat datang</h1><p class="mut lsub">Sudahkah Anda absen hari ini?</p>
+      <div class="f"><label>Email</label><input id="em" type="email" autocomplete="username"></div>
+      <div class="f"><label>Password</label><div class="pwbox"><input id="pw" type="password" autocomplete="current-password"><button type="button" class="eye" id="eye" onclick="eye()">👁️</button></div></div>
+      <div class="f"><label>Kode captcha</label><div class="caprow"><canvas id="cap" width="130" height="44"></canvas><button type="button" class="btn ghost sm" onclick="newCap()" title="Ganti kode">↻</button><input id="capIn" autocomplete="off" maxlength="5" placeholder="Ketik kode"></div></div>
+      <div class="remrow"><label class="rem"><input type="checkbox" id="remember"> Simpan kata sandi</label><button type="button" class="lupa" onclick="lupaOpen()">Lupa password?</button></div>
+      <button class="btn" id="bLogin" style="width:100%">Masuk Sekarang</button>
+    </div>
+  </section>
+</div>
+<div id="shell" style="display:none">
+  <aside><div class="brand"><img src="img/logo.svg" alt="">Absensi</div><div id="nav" style="display:contents"></div></aside>
+  <div class="col">
+    <header class="top"><div id="clk"></div><div class="sp"></div>
+      <button type="button" class="nfbtn ckbtn" onclick="ckOpen()" title="Cari (Ctrl+K)" aria-label="Cari"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><kbd>Ctrl K</kbd></button>
+      <select class="langsel" onchange="setLang(this.value)"><option value="id">ID</option><option value="en">EN</option><option value="zh">ZH</option></select>
+      <button type="button" class="nfbtn pwabtn" onclick="pwaInstall()" hidden title="Pasang aplikasi di HP" aria-label="Pasang aplikasi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M5 21h14"/></svg></button>
+      <div id="nfwrap"><button type="button" class="nfbtn" id="nfb" onclick="nfToggle(event)" aria-label="Notifikasi" title="Notifikasi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span class="nfn" id="nfn" hidden></span></button><div class="nfdd" id="nfdd"></div></div>
+      <div id="avwrap"><div class="av" id="av" onclick="toggleMenu()"></div>
+        <div class="dd" id="umenu"><div id="umName"></div><button onclick="document.getElementById('avf').click()">Ganti foto</button><button onclick="pwSelf()">Ganti password</button><button onclick="auth.signOut()">Keluar</button></div></div>
+      <input type="file" id="avf" accept="image/*" hidden onchange="setAvatar(this)">
+    </header>
+    <main id="view"></main>
+  </div>
+</div>
+<script>/* terapkan branding tersimpan sebelum paint pertama, supaya tidak flash tampilan bawaan */
+try{if(B){var g=function(i){return document.getElementById(i)},lg=B.logo||"img/logo.svg",br=document.querySelector(".brand");
+g("lLogo").src=lg;if(B.tone)g("lLogo").className=B.tone;if(B.name)g("lName").textContent=B.name;g("lAddr").textContent=B.address||"";
+br.innerHTML="";var im=new Image();im.src=B.logoDark||lg;im.alt="";if(B.tone)im.className=B.tone;br.appendChild(im);br.appendChild(document.createTextNode(B.name||"Absensi"))}}catch(e){}</script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+<script src="js/demo.js?v=75"></script>
+<script src="js/pelanggan.js?v=75"></script>
+<script src="js/tenant.js?v=75"></script>
+<script src="js/ui.js?v=76"></script>
+<script src="js/dialog.js?v=76"></script>
+<script src="js/i18n2.js?v=77"></script>
+<script src="js/extra.js?v=75"></script>
+<script src="js/org.js?v=75"></script>
+<script src="js/features.js?v=75"></script>
+<script src="js/cuti.js?v=75"></script>
+<script src="js/shift.js?v=75"></script>
+<script src="js/app.js?v=76"></script>
+<script src="js/payroll.js?v=75"></script>
+<script src="js/license.js?v=76"></script>
+<script src="js/rekapx.js?v=75"></script>
+<script src="js/gajix.js?v=75"></script>
+<script src="js/pajak.js?v=75"></script>
+<script src="js/saldo.js?v=75"></script>
+<script src="js/tabel.js?v=75"></script>
+<script src="js/todo.js?v=75"></script>
+<script src="js/kosong.js?v=75"></script>
+<script src="js/password.js?v=75"></script>
+<script src="js/lupa.js?v=75"></script>
+<script src="js/dash.js?v=75"></script>
+<script src="js/field.js?v=75"></script>
+<script src="js/storage.js?v=75"></script>
+<script src="js/pdf.js?v=75"></script>
+<script src="js/cetak.js?v=75"></script>
+<script src="js/licpdf.js?v=75"></script>
+<script src="js/cmdk.js?v=75"></script>
+<script src="js/search.js?v=75"></script>
+<script src="js/place.js?v=75"></script>
+<script src="js/audit.js?v=75"></script>
+<script src="js/demo-ui.js?v=75"></script>
+<script src="js/pwa.js?v=75"></script>
+</body></html>

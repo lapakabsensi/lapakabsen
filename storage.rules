@@ -1,0 +1,42 @@
+rules_version = '2';
+// Aturan Firebase Storage untuk foto absen. Struktur per pelanggan:
+//   bukti/<kode>/<uid>/<file>.jpg  (foto absen, lapangan, lampiran: dihapus otomatis lewat Lifecycle bucket, prefix "bukti/")
+//   photos/<kode>/<uid>/<file>.jpg (foto profil & wajah: permanen)
+// Pasang di Firebase Console -> Storage -> Rules -> Publish.
+// Aturan membaca role / atasan dari koleksi "tenants/<kode>/users" di Firestore (cross-service rules).
+service firebase.storage {
+  match /b/{bucket}/o {
+    function signed() { return request.auth != null; }
+    function isSuper() { return signed() && firestore.exists(/databases/(default)/documents/superadmins/$(request.auth.uid)); }
+    function me(t) { return firestore.get(/databases/(default)/documents/tenants/$(t)/users/$(request.auth.uid)).data; }
+    function live(t) { return firestore.get(/databases/(default)/documents/tenants/$(t)).data.status == 'aktif'; }
+    function isAdmin(t) { return isSuper() || (signed() && live(t) && me(t).role == 'admin'); }
+    function isStaff(t) { return isSuper() || (signed() && live(t) && me(t).role in ['admin', 'hr']); }
+    // atasan langsung (satu atau beberapa) dari pemilik foto
+    function isBossOf(t, uid) {
+      let d = firestore.get(/databases/(default)/documents/tenants/$(t)/users/$(uid)).data;
+      return request.auth.uid in d.get('atasanIds', []) || d.get('atasanId', '') == request.auth.uid;
+    }
+    function okImage() {
+      return request.resource.contentType.matches('image/.*') && request.resource.size < 1024 * 1024;
+    }
+
+    // foto bukti: absen, absen lapangan, lampiran pengajuan. Dihapus otomatis oleh Lifecycle rule bucket (Age 90 hari, prefix bukti/)
+    match /bukti/{t}/{uid}/{file} {
+      allow read: if signed() && (isSuper() || (live(t) && (request.auth.uid == uid || isStaff(t) || isBossOf(t, uid))));
+      // karyawan hanya boleh MENGUNGGAH file baru (tidak bisa menimpa foto yang sudah ada)
+      allow create: if signed() && live(t) && request.auth.uid == uid && okImage()
+                    && file.matches('(att|lap|req)_.*[.]jpg');
+      allow write: if isAdmin(t);
+    }
+
+    // foto profil & foto wajah (permanen, tidak kena lifecycle)
+    match /photos/{t}/{uid}/{file} {
+      allow read: if signed() && (isSuper() || (live(t) && (request.auth.uid == uid || isStaff(t) || isBossOf(t, uid))));
+      allow create: if signed() && live(t) && request.auth.uid == uid && okImage()
+                    && file.matches('(face|avatar)_.*[.]jpg');
+      allow update, delete: if signed() && live(t) && request.auth.uid == uid && file.matches('avatar_.*[.]jpg');
+      allow write: if isAdmin(t);
+    }
+  }
+}
