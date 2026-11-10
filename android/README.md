@@ -23,10 +23,16 @@ Proyek Android Trusted Web Activity (TWA) resmi untuk **Absensi & Payroll** (`la
 - Java JDK 17 atau lebih baru
 - Android Studio / Android SDK (API 34)
 
-### 1. Buat Keystore Penandatanganan (Signing Key)
-```bash
-keytool -genkeypair -v -keystore release.keystore -alias lapakabsensi -keyalg RSA -keysize 2048 -validity 10000 -storepass android -keypass android -dname "CN=LapakAbsensi, OU=App, O=LapakAbsensi, C=ID"
-```
+### 1. Kunci penandatangan (keystore)
+Kunci **tidak boleh** disimpan di repo (repo ini publik). Simpan file `.jks` di tempat aman dan pasang lewat GitHub Secrets:
+
+- `ANDROID_KEYSTORE_B64`: isi file keystore dalam base64 (`base64 -w0 lapakabsensi-release.jks`)
+- `ANDROID_KEYSTORE_PASSWORD`: password keystore (sama dengan password kunci, alias `lapakabsensi`)
+
+Buat di GitHub: Settings → Secrets and variables → Actions → New repository secret.
+Buat kunci baru: `keytool -genkeypair -keystore lapakabsensi-release.jks -alias lapakabsensi -keyalg RSA -keysize 2048 -validity 10000`
+Setelah ganti kunci, perbarui sidik jari SHA-256 di `.well-known/assetlinks.json` dan `android/app/build.gradle`.
+Build lokal: `KEYSTORE_PATH=/path/ke/file.jks KEYSTORE_PASSWORD=... ./gradlew assembleRelease`
 
 ### 2. Build APK (Instalasi HP Langsung)
 ```bash

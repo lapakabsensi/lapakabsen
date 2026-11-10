@@ -154,6 +154,7 @@ function snap(v,w){const c=document.createElement("canvas");c.width=w;c.height=M
 async function openCam(){
   stopCam();
   try{STREAM=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:{ideal:960},height:{ideal:720}},audio:false})}catch(e){throw new Error("Kamera tidak bisa dibuka: "+e.message)}
+  try{camCheck()}catch(e){stopCam();throw e}
   const v=$("#cam");if(!v){stopCam();return}v.srcObject=STREAM;
   await new Promise(r=>{if(v.videoWidth)return r();v.onloadedmetadata=()=>r()});
 }
@@ -199,7 +200,7 @@ const scanAlive=my=>SC===my&&my.on&&document.body.contains($("#cam"));
 // satu frame: deteksi + gambar overlay + hitung panduan
 async function scanTick(my,lx,opt){
   const v=$("#cam"),cv=$("#ov");if(!v||!cv)return;
-  const ds=await faceapi.detectAllFaces(v,opt).withFaceLandmarks();if(!scanAlive(my))return;
+  const ds=await faceapi.detectAllFaces(v,opt).withFaceLandmarks();if(!scanAlive(my))return;my.ds=ds;
   lx.drawImage(v,0,0,32,24);const px=lx.getImageData(0,0,32,24).data;let s=0;for(let i=0;i<px.length;i+=4)s+=px[i]*.3+px[i+1]*.59+px[i+2]*.11;
   let g=scanGuide(ds,v);if(g.ok&&s/(px.length/4)<30)g={ok:false,m:"Cahaya kurang terang"};
   my.ok=g.ok;
@@ -226,10 +227,53 @@ async function scanLoop(my){
 }
 // tunggu sambil tetap menggambar overlay (dipanggil dari dalam job)
 async function scanWait(ms){const my=SC,t=Date.now()+ms;while(my&&scanAlive(my)&&Date.now()<t){try{await scanTick(my,my.lx,my.opt)}catch(e){}await sleep(60)}}
+// ---------- Verifikasi gerakan nyata (anti foto / video / kamera virtual) ----------
+// Sebelum wajah dicocokkan, karyawan diminta menoleh ke arah ACAK (kiri/kanan) lalu kembali menghadap depan. Foto atau video rekaman
+// tidak bisa menebak arahnya. Admin bisa mematikannya di Jadwal Kerja (SET.liveOff). Catatan: ini dikerjakan di browser/APK,
+// jadi hanya menahan kamera virtual dan foto di aplikasi ASLI; APK yang sudah dimodifikasi tetap bisa melewatinya.
+const VCAM=/virtual|\bobs\b|manycam|droidcam|iriun|epoccam|xsplit|snap ?camera|vcam|fake|loopback|splitcam|youcam|mmhmm|streamlabs|screen ?(cap|shar)/i;
+function camCheck(){
+  const t=STREAM&&STREAM.getVideoTracks&&STREAM.getVideoTracks()[0];if(!t||SET.liveOff)return;
+  const l=t.label||"";if(VCAM.test(l))throw new Error(`Kamera virtual terdeteksi (${l}). Gunakan kamera depan bawaan HP.`);
+}
+// posisi hidung di antara tepi rahang kiri-kanan pada gambar kamera asli (tidak dicerminkan): ~0.5 = menghadap lurus
+const lmYaw=p=>{const a=p[0].x,w=p[16].x-a;return w>0?(p[30].x-a)/w:.5};
+async function liveCheck(my){
+  if(SET.liveOff||window.DEMO_ON)return true;
+  const v=$("#cam"),c=document.createElement("canvas");c.width=48;c.height=36;const x=c.getContext("2d",{willReadFrequently:true});
+  let prev=null,dsum=0,dn=0;
+  const read=()=>{x.drawImage(v,0,0,48,36);const d=x.getImageData(0,0,48,36).data,g=new Float32Array(1728);
+    for(let i=0,j=0;i<d.length;i+=4,j++)g[j]=d[i]*.3+d[i+1]*.59+d[i+2]*.11;
+    if(prev){let s=0;for(let j=0;j<g.length;j++)s+=Math.abs(g[j]-prev[j]);dsum+=s/g.length;dn++}prev=g};
+  const yaw=()=>{const f=my.ds&&my.ds.length===1?my.ds[0]:null;return f?lmYaw(f.landmarks.positions):null};
+  const step=async()=>{await scanTick(my,my.lx,my.opt);read();return yaw()};
+  // 1) pose awal: menghadap depan (sekaligus memastikan gambar kamera benar-benar bergerak/hidup)
+  scanSet("scan","Hadap lurus ke kamera");scanProg(.1);
+  const base=[];for(let t=Date.now()+1400;scanAlive(my)&&Date.now()<t;){const y=await step();if(y!=null)base.push(y);await sleep(40)}
+  if(!scanAlive(my))return"Dibatalkan";
+  if(base.length<4)return"Wajah tidak terdeteksi. Hadap kamera dan pastikan cahaya cukup.";
+  if(dn>=8&&dsum/dn<.12)return"Gambar kamera tidak bergerak seperti foto. Gunakan kamera depan asli.";
+  base.sort((a,b)=>a-b);const b0=base[base.length>>1];
+  // 2) tantangan acak. Pada gambar asli, menoleh ke kanan (sisi kanan pengguna) menggeser hidung ke kiri gambar => nilai turun.
+  const turn=Math.random()<.5?"kanan":"kiri",sg=turn==="kanan"?-1:1;
+  scanSet("scan",`Toleh ke ${turn}, lalu kembali ke depan`);scanProg(.3);
+  let moved=false,back=false;
+  for(let t=Date.now()+7000;scanAlive(my)&&Date.now()<t&&!back;){
+    const y=await step();
+    if(y!=null){if(!moved&&(y-b0)*sg>=.09){moved=true;scanProg(.6)}else if(moved&&Math.abs(y-b0)<=.05)back=true}
+    await sleep(30);
+  }
+  if(!scanAlive(my))return"Dibatalkan";
+  if(!moved)return`Gerakan "toleh ke ${turn}" tidak terdeteksi. Ulangi dan toleh pelan ke arah ${turn} badanmu.`;
+  if(!back)return"Setelah menoleh, hadap lurus kembali ke kamera.";
+  scanProg(.8);return true;
+}
 // ambil sampel wajah, berhenti begitu ada yang cocok dengan data terdaftar (biasanya cukup 1 sampel); maksimal 3 percobaan
 const errMsg=e=>e&&(e.code==="permission-denied"||/missing or insufficient permissions/i.test(e.message||""))?"Absen ditolak server. Kemungkinan: (1) jam HP tidak sesuai waktu server (selisih maks. 3 menit) → setel jam & zona waktu HP ke otomatis; (2) firestore.rules terbaru belum dipublikasikan (admin: Firebase Console → Firestore → Rules).":(e&&e.message)||String(e);
 async function captureJob(my){
   const v=$("#cam");let tries=0,err="",best=9;
+  const fail=async m=>{scanSet("fail","✗ "+m);toast(m);await sleep(1500);if(scanAlive(my)&&my.fin)my.fin()};
+  const lv=await liveCheck(my);if(lv!==true){if(scanAlive(my))await fail(lv);return}
   scanSet("scan","Memindai wajah…");scanProg(.3);
   while(tries<3&&scanAlive(my)){
     tries++;const r=await grabFace(v);
@@ -245,7 +289,6 @@ async function captureJob(my){
     }
   }
   if(!scanAlive(my))return;
-  const fail=async m=>{scanSet("fail","✗ "+m);toast(m);await sleep(1500);if(scanAlive(my)&&my.fin)my.fin()};
   if(best>=9)return fail(err||"Wajah tidak terdeteksi, coba lagi");
   const pct=simPct(best);scanScore(`Kecocokan ${pct}%`);
   return fail(`Wajah tidak cocok dengan data terdaftar (${pct}%). Coba lagi dengan cahaya lebih terang.`);
@@ -291,6 +334,7 @@ async function enrollJob(){
   const v=$("#cam"),b=$("#bEnroll"),st=m=>{const e=$("#fst");if(e)e.textContent=m};
   const steps=["Hadap lurus ke kamera","Tersenyum","Miringkan kepala sedikit"],S=[];let photo="";
   try{
+    const lv=await liveCheck(SC);if(lv!==true)throw new Error(lv);
     for(let k=0;k<steps.length;k++){
       scanSet("scan",`(${k+1}/${steps.length}) ${steps[k]}`);scanProg(k/steps.length);st(`(${k+1}/${steps.length}) ${steps[k]}...`);await scanWait(1800);
       let r;for(let i=0;i<5;i++){r=await grabFace(v);if(r.desc)break;await scanWait(500)}

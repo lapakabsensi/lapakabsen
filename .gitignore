@@ -1,0 +1,5 @@
+
+# kunci penandatangan jangan pernah di-commit
+*.keystore
+*.jks
+*.p12
