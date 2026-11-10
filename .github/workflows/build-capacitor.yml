@@ -33,6 +33,23 @@ jobs:
       - run: npm install
       - run: pip install pillow
       - run: python3 prepare.py web
+      - name: Acak (obfuscate) kode JS sebelum dibundel ke APK
+        run: |
+          npx --yes javascript-obfuscator@4.1.1 www/js --output www/js \
+            --compact true \
+            --identifier-names-generator hexadecimal \
+            --string-array true \
+            --string-array-encoding base64 \
+            --string-array-threshold 0.75 \
+            --split-strings true \
+            --split-strings-chunk-length 10 \
+            --control-flow-flattening true \
+            --control-flow-flattening-threshold 0.5 \
+            --dead-code-injection true \
+            --dead-code-injection-threshold 0.2 \
+            --simplify true \
+            --rename-globals false \
+            --transform-object-keys false
       - run: npx cap add android
       - run: python3 prepare.py native
       - run: npx cap sync android
