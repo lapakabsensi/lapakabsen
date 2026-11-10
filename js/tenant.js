@@ -4,7 +4,8 @@
 let TENANT=(function(){
   if(window.DEMO_ON)return"demo";
   // Link rapi https://alamatweb/nerovision: .htaccess menyajikan index.html, tetapi alamat di browser tetap /nerovision (location.search kosong), jadi kode dibaca dari path.
-  const pq=(location.pathname.match(/^\/([a-z0-9]+)\/?$/i)||[])[1]||"",q=new URLSearchParams(location.search).get("c")||pq,fix=window.TENANT_ID||"";let s="";try{s=localStorage.getItem("tenantId")||""}catch(e){}
+  let bp="/";try{bp=new URL("..",document.currentScript.src).pathname}catch(e){} // folder tempat index.html berada (mis. /lapakabsensi/ di GitHub Pages), bukan kode tenant
+  const rel=location.pathname.indexOf(bp)===0?location.pathname.slice(bp.length):location.pathname.replace(/^\//,""),pq=(rel.match(/^([a-z0-9]+)\/?$/i)||[])[1]||"",q=new URLSearchParams(location.search).get("c")||pq,fix=window.TENANT_ID||"";let s="";try{s=localStorage.getItem("tenantId")||""}catch(e){}
   const t=String(q||fix||s).trim().toLowerCase().replace(/[^a-z0-9]/g,"");
   try{if(t)localStorage.setItem("tenantId",t)}catch(e){}
   return t;
