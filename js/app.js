@@ -39,7 +39,22 @@ const num=el=>+String(el.value).replace(/\D/g,"")||0;
 const fm=el=>{const d=el.value.replace(/\D/g,"");el.value=d?(+d).toLocaleString("id-ID"):""};
 const fld=(id,l,t,o,v="")=>`<div class="f"><label>${l}</label>`+(t==="select"?`<select id="${id}">${o.map(x=>`<option value="${x}"${x==v?" selected":""}>${x}</option>`).join("")}</select>`:t==="textarea"?`<textarea id="${id}" rows="3">${esc(v)}</textarea>`:t==="money"?`<input id="${id}" class="money" inputmode="numeric" value="${v===""?"":Number(v).toLocaleString("id-ID")}" oninput="fm(this)">`:`<input id="${id}" type="${t}" value="${esc(v)}">`)+"</div>";
 const fv=(x,k)=>esc(x[k]||"-")+(x[k+"Field"]?'<sup title="Absen lapangan (disetujui atasan & HR)">L</sup>':"");
-const attTable=(a,nm)=>{const x4=a.some(x=>x.mid!==undefined);return`<div class="tw"><table><tr>${nm?"<th>Nama</th>":""}<th>Tanggal</th><th>Masuk</th>${x4?"<th>Siang</th><th>Sore</th>":""}<th>Pulang</th><th>Status</th></tr>${a.map(x=>`<tr>${nm?`<td>${esc(nm[x.uid]||"-")}</td>`:""}<td>${x.date}</td><td>${fv(x,"in")}</td>${x4?`<td>${fv(x,"mid")}</td><td>${fv(x,"aft")}</td>`:""}<td>${fv(x,"out")}</td><td>${tag(x.status)}</td></tr>`).join("")||'<tr><td class="mut">Belum ada data</td></tr>'}</table></div>`};
+const attTable=(a,nm)=>{const x4=a.some(x=>x.mid!==undefined);return`<div class="tw"><table><tr>${nm?"<th>Nama</th>":""}<th>Tanggal</th><th>Masuk</th>${x4?"<th>Siang</th><th>Sore</th>":""}<th>Pulang</th><th>Status</th><th>Foto</th></tr>${a.map(x=>`<tr>${nm?`<td>${esc(nm[x.uid]||"-")}</td>`:""}<td>${x.date}</td><td>${fv(x,"in")}</td>${x4?`<td>${fv(x,"mid")}</td><td>${fv(x,"aft")}</td>`:""}<td>${fv(x,"out")}</td><td>${tag(x.status)}</td><td>${attPhotoBtn(x,nm)}</td></tr>`).join("")||'<tr><td class="mut">Belum ada data</td></tr>'}</table></div>`};
+
+// ---- Foto bukti absen (admin/karyawan): tombol per baris + modal lihat foto Masuk/Siang/Sore/Pulang ----
+const ATTPH=[];
+const attPhotoBtn=(x,nm)=>["in","mid","aft","out"].some(k=>x[k+"Photo"])?`<button type="button" class="btn ghost sm" onclick="attPhotoOpen(${ATTPH.push({x,nm})-1})">📷 Lihat</button>`:'<span class="mut">-</span>';
+function attPhotoOpen(i){
+  const d=ATTPH[i];if(!d)return;const{x,nm}=d;
+  const LBL={in:"Masuk",mid:"Siang",aft:"Sore",out:"Pulang"},slots=["in","mid","aft","out"].filter(k=>x[k+"Photo"]);
+  if(!slots.length)return toast("Tidak ada foto untuk absen ini");
+  const o=document.createElement("div");o.className="zoom absd";
+  o.innerHTML=`<div class="box absd-c" onclick="event.stopPropagation()"><div class="row"><h3 style="margin:0">📷 Foto absen${nm&&nm[x.uid]?" · "+esc(nm[x.uid]):""}</h3><button class="btn ghost sm" onclick="this.closest('.absd').remove()">✕</button></div>
+  <p class="mut" style="margin:0 0 12px">${esc(x.date)}</p>
+  ${slots.map(k=>`<div style="margin-bottom:14px"><p class="mut" style="margin:0 0 6px"><b style="color:var(--ink)">${LBL[k]}</b> · ${esc(x[k]||"-")}${x[k+"Dist"]!=null&&x[k+"Dist"]!==""?` · wajah cocok ${simPct(x[k+"Dist"])}%`:""}</p><img class="absd-p" src="${phSrc(x[k+"Photo"])}"${phAttr(x[k+"Photo"])} alt="" onclick="photoZoom(this.src)">${placeBlock(x[k+"Loc"])}</div>`).join("")}
+  </div>`;
+  o.onclick=()=>o.remove();document.body.appendChild(o);tr(o);
+}
 
 // ---- Hitung gaji, bonus sales, PPh21 (tarif progresif tahunan, disederhanakan) ----
 function pphTahun(p){let t=0;for(const[w,r]of[[60e6,.05],[190e6,.15],[250e6,.25],[4.5e9,.3],[Infinity,.35]]){const x=Math.min(p,w);t+=x*r;p-=x;if(p<=0)break}return t}
@@ -281,8 +296,8 @@ function rkDraw(){
   const D=window.__RK,el=$("#rkDet");if(!D||!el)return;
   const l=rkVis(),x4=l.some(x=>x.mid!==undefined),ttl={normal:" · hanya Normal",abnormal:" · hanya Abnormal / terlambat"}[RK.st]||"";
   D.vis=l;RKSEL=new Set([...RKSEL].filter(id=>l.some(x=>x.id===id)));
-  el.innerHTML=`<h3>Detail absensi · ${esc(D.lbl)}${ttl}</h3><div class="rkbar" id="rkBar"></div><div class="tw"><table data-pg="rkdet"><tr><th class="ckc"><input type="checkbox" class="ck" id="rkAll" title="Pilih semua yang tampil" onchange="rkAll(this.checked)"></th><th>Nama</th><th>Tanggal</th><th>Masuk</th>${x4?"<th>Siang</th><th>Sore</th>":""}<th>Pulang</th><th>Status</th></tr>`+
-    (l.map(x=>`<tr data-id="${esc(x.id)}" class="${RKSEL.has(x.id)?"sel":""}"><td class="ckc"><input type="checkbox" class="ck" ${RKSEL.has(x.id)?"checked":""} onchange="rkTog(this)"></td><td>${esc(D.nm[x.uid]||"-")}</td><td>${x.date}</td><td>${fv(x,"in")}</td>${x4?`<td>${fv(x,"mid")}</td><td>${fv(x,"aft")}</td>`:""}<td>${fv(x,"out")}</td><td>${tag(x.status)}</td></tr>`).join("")||`<tr><td colspan="${x4?8:6}">${emptyBox("🔎","Tidak ada data absensi",RK.st?"Coba ubah filter status.":"Coba ubah rentang waktu atau filter.")}</td></tr>`)+`</table></div>`;
+  el.innerHTML=`<h3>Detail absensi · ${esc(D.lbl)}${ttl}</h3><div class="rkbar" id="rkBar"></div><div class="tw"><table data-pg="rkdet"><tr><th class="ckc"><input type="checkbox" class="ck" id="rkAll" title="Pilih semua yang tampil" onchange="rkAll(this.checked)"></th><th>Nama</th><th>Tanggal</th><th>Masuk</th>${x4?"<th>Siang</th><th>Sore</th>":""}<th>Pulang</th><th>Status</th><th>Foto</th></tr>`+
+    (l.map(x=>`<tr data-id="${esc(x.id)}" class="${RKSEL.has(x.id)?"sel":""}"><td class="ckc"><input type="checkbox" class="ck" ${RKSEL.has(x.id)?"checked":""} onchange="rkTog(this)"></td><td>${esc(D.nm[x.uid]||"-")}</td><td>${x.date}</td><td>${fv(x,"in")}</td>${x4?`<td>${fv(x,"mid")}</td><td>${fv(x,"aft")}</td>`:""}<td>${fv(x,"out")}</td><td>${tag(x.status)}</td><td>${attPhotoBtn(x,D.nm)}</td></tr>`).join("")||`<tr><td colspan="${x4?9:7}">${emptyBox("🔎","Tidak ada data absensi",RK.st?"Coba ubah filter status.":"Coba ubah rentang waktu atau filter.")}</td></tr>`)+`</table></div>`;
   rkBar();
 }
 function rkBar(){
