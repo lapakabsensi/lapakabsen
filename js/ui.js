@@ -77,7 +77,7 @@ function trimLogo(src){if(!src||src.slice(0,5)!=="data:")return Promise.resolve(
 async function applyLogos(){const lg=COMP.logo||"img/logo.svg",im=document.querySelector(".brand img");if(!im)return;
   im.src=COMP.logoDark||lg;LOGO_CLS=COMP.logoDark?"":toneCls(await logoTone(lg));im.className=LOGO_CLS;const ll=document.getElementById("lLogo");if(ll)ll.className=LOGO_CLS;cacheBrand();
   trimLogo(COMP.logoDark||lg).then(u=>{if(u!==im.src)im.src=u});if(ll)trimLogo(lg).then(u=>{if(u!==ll.src)ll.src=u})}
-function applyBrand(){const n=COMP.name||"Absensi & Payroll",lg=COMP.logo||"img/logo.svg";document.title=n;const fi=document.querySelector("link[rel=icon]");if(fi){fi.removeAttribute("type");fi.href=lg;}
+function applyBrand(){const n=COMP.name||"Lapak Absen",lg=COMP.logo||"img/logo.svg";document.title=n;const fi=document.querySelector("link[rel=icon]");if(fi){fi.removeAttribute("type");fi.href=lg;}
   if(COMP.color)applyTheme(COMP.color,COMP.color2,COMP.grad);
   document.getElementById("lLogo").src=lg;document.getElementById("lName").textContent=n;document.getElementById("lAddr").textContent=COMP.address||"";
   document.querySelector(".brand").innerHTML=`<img src="${COMP.logoDark||lg}" alt="" class="${LOGO_CLS}">${esc(COMP.name||"Absensi")}`;applyLogos();if(typeof pwaBrand==="function")pwaBrand()}

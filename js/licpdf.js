@@ -15,8 +15,8 @@ async function lpHead(d,title,sub){
   const lg=await pdfLogo(window.LP_LOGO||"img/logo.svg");let tx=44;
   if(lg){const k=Math.min(52/lg.w,52/lg.h),w=lg.w*k,h=lg.h*k;d.rect(40,20,w+8,h+8,"#ffffff");d.image(lg,44,24,w,h);tx=44+w+18}
   const co=String(PAY.company||"").trim();                                    // nama perusahaan penyedia (Pengaturan Super Admin)
-  d.text(d.fit(co||"Absensi & Payroll",PW-44-tx-150,18,true),tx,48,{size:18,bold:true,color:"#ffffff"});
-  if(co)d.text("Penyedia layanan Absensi & Payroll",tx,64,{size:9,color:"#ffffff"});
+  d.text(d.fit(co||"Lapak Absen",PW-44-tx-150,18,true),tx,48,{size:18,bold:true,color:"#ffffff"});
+  if(co)d.text("Penyedia layanan Lapak Absen",tx,64,{size:9,color:"#ffffff"});
   d.text(title,PW-44,48,{size:12,bold:true,color:"#ffffff",align:"right"});d.text(sub,PW-44,64,{size:9,color:"#ffffff",align:"right"});
 }
 // pasangan label : nilai berjajar ke bawah; mengembalikan y berikutnya
@@ -75,7 +75,7 @@ async function licInvBlob(l){
   d.text("Periode",cx[2],y+16,{size:9,bold:true,color:"#ffffff",align:"right"});d.text("Harga/akun/bln",cx[3],y+16,{size:9,bold:true,color:"#ffffff",align:"right"});d.text("Subtotal",cx[4],y+16,{size:9,bold:true,color:"#ffffff",align:"right"});
   y+=24;
   const tot=l.total!=null?+l.total:(+l.qty||0)*(+l.price||0)*mo;
-  d.text(l.kind==="perpanjang"?"Perpanjangan lisensi akun karyawan (Absensi & Payroll)":"Lisensi akun karyawan (Absensi & Payroll)",cx[0],y+20,{size:10});d.text(String(l.qty),cx[1],y+20,{size:10,align:"right"});d.text(mo+" bln",cx[2],y+20,{size:10,align:"right"});
+  d.text(l.kind==="perpanjang"?"Perpanjangan lisensi akun karyawan (Lapak Absen)":"Lisensi akun karyawan (Lapak Absen)",cx[0],y+20,{size:10});d.text(String(l.qty),cx[1],y+20,{size:10,align:"right"});d.text(mo+" bln",cx[2],y+20,{size:10,align:"right"});
   d.text(pdfRp(l.price),cx[3],y+20,{size:10,align:"right"});d.text(pdfRp(tot),cx[4],y+20,{size:10,align:"right"});
   d.text(l.kind==="perpanjang"?`Perpanjangan ${mo} bulan, ditambahkan ke masa berlaku lisensi yang ada.`:`Token berlaku ${mo} bulan sejak diaktifkan oleh admin.`,cx[0],y+35,{size:8.5,color:LP_MUT});
   y+=48;d.line(M,y,R,y);y+=26;

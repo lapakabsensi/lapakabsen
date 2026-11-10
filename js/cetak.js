@@ -15,7 +15,7 @@ async function pdfReport(o){
   const thead=()=>{d.rect(M,y,R-M,RH+2,"#f1f5f9");let x=0;cur.cols.forEach(([t,,a],i)=>{const w=cur.cw[i];d.text(d.fit(t,w-6,fs,true),al(a,M+x,w),y+RH-4,{size:fs,bold:true,color:ac,align:aa(a)});x+=w});y+=RH+2};
   const top=()=>{pg++;if(pg>1)d.addPage();d.rect(0,0,W,58,ac);let tx=M;
     if(lg){const k=Math.min(34/lg.w,34/lg.h),w=lg.w*k,h=lg.h*k;d.rect(M-3,11,w+6,h+6,"#ffffff");d.image(lg,M,14,w,h);tx=M+w+14}
-    d.text(d.fit((COMP&&COMP.name)||"Absensi & Payroll",(R-M)*.55,15,true),tx,30,{size:15,bold:true,color:"#ffffff"});
+    d.text(d.fit((COMP&&COMP.name)||"Lapak Absen",(R-M)*.55,15,true),tx,30,{size:15,bold:true,color:"#ffffff"});
     if(COMP&&COMP.address)d.text(d.fit(COMP.address,(R-M)*.55,8.5,false),tx,46,{size:8.5,color:"#ffffffd9"});
     d.text(o.title,R,30,{size:13,bold:true,color:"#ffffff",align:"right"});if(o.sub)d.text(d.fit(o.sub,(R-M)*.45,8.5,false),R,46,{size:8.5,color:"#ffffff",align:"right"});
     y=76;if(cur)thead()};

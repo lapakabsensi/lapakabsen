@@ -36,7 +36,7 @@ function logoPng(src,size,bg){return new Promise(ok=>{const i=new Image();i.onlo
   if(bg){x.fillStyle=bg;x.fillRect(0,0,size,size)}const k=Math.min(size/i.width,size/i.height)*(bg?.8:1),w=i.width*k,h=i.height*k;x.drawImage(i,(size-w)/2,(size-h)/2,w,h);ok(c.toDataURL("image/png"))}catch(e){ok(null)}};i.onerror=()=>ok(null);i.src=src})}
 async function pwaBrand(){
   try{
-    const color=COMP.color||"#0d9488",name=COMP.name||"Absensi & Payroll",tm=document.querySelector("meta[name=theme-color]");if(tm)tm.content=color;
+    const color=COMP.color||"#0d9488",name=COMP.name||"Lapak Absen",tm=document.querySelector("meta[name=theme-color]");if(tm)tm.content=color;
     const at=document.querySelector("meta[name=apple-mobile-web-app-title]");if(at)at.content=name.slice(0,20);
     if(!COMP.logo)return;
     const ap=await logoPng(COMP.logo,180,"#ffffff");
@@ -68,7 +68,7 @@ function iconPng(src,size,scale){return new Promise((ok,no)=>{const i=new Image(
 async function pwaIconPack(){
   try{
     toast("Menyiapkan paket ikon...");
-    const src=COMP.logo||"img/logo.svg",color=COMP.color||"#0d9488",name=COMP.name||"Absensi & Payroll";
+    const src=COMP.logo||"img/logo.svg",color=COMP.color||"#0d9488",name=COMP.name||"Lapak Absen";
     let mf={};try{mf=await(await fetch("manifest.json",{credentials:"include",cache:"no-store"})).json()}catch(e){}
     if(!mf.icons)mf={id:"./",start_url:"./",scope:"./",display:"standalone",background_color:"#f1f5f9",lang:"id",prefer_related_applications:false,
       icons:[{src:"icons/icon-192.png",sizes:"192x192",type:"image/png",purpose:"any"},{src:"icons/icon-512.png",sizes:"512x512",type:"image/png",purpose:"any"},{src:"icons/icon-maskable-512.png",sizes:"512x512",type:"image/png",purpose:"maskable"}]};

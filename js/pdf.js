@@ -36,7 +36,7 @@ class MiniPDF{
     for(const p of this.pages){const c=bin(p.join("\n")),cid=add({dict:`<< /Length ${c.length} >>`,data:c});
       kids.push(add(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${this.W} ${this.H}] /Resources << /Font << /F1 ${f1} 0 R /F2 ${f2} 0 R >>${xo} >> /Contents ${cid} 0 R >>`))}
     objs[1]=`<< /Type /Pages /Count ${kids.length} /Kids [${kids.map(k=>k+" 0 R").join(" ")}] >>`;
-    const inf=add(`<< /Title (${pdfEsc(pdfTxt(info.title||"Dokumen"))}) /Producer (Absensi & Payroll) >>`);
+    const inf=add(`<< /Title (${pdfEsc(pdfTxt(info.title||"Dokumen"))}) /Producer (Lapak Absen) >>`);
     const parts=[],offs=[];let len=0;const push=u=>{parts.push(u);len+=u.length};
     push(bin("%PDF-1.4\n%\xe2\xe3\xcf\xd3\n"));
     objs.forEach((o,i)=>{offs.push(len);if(typeof o==="string")push(bin(`${i+1} 0 obj\n${o}\nendobj\n`));else{push(bin(`${i+1} 0 obj\n${o.dict}\nstream\n`));push(o.data);push(bin("\nendstream\nendobj\n"))}});
@@ -57,7 +57,7 @@ async function slipBlob(p,u){
   d.rect(0,0,PW,92,ac);
   const lg=await pdfLogo((COMP&&COMP.logo)||"img/logo.svg");let tx=M;
   if(lg){const k=Math.min(52/lg.w,52/lg.h),w=lg.w*k,h=lg.h*k;d.rect(M-4,20,w+8,h+8,"#ffffff");d.image(lg,M,24,w,h);tx=M+w+18}
-  d.text(d.fit((COMP&&COMP.name)||"Absensi & Payroll",R-tx,18,true),tx,48,{size:18,bold:true,color:"#ffffff"});
+  d.text(d.fit((COMP&&COMP.name)||"Lapak Absen",R-tx,18,true),tx,48,{size:18,bold:true,color:"#ffffff"});
   if(COMP&&COMP.address)d.text(d.fit(COMP.address,R-tx,9,false),tx,64,{size:9,color:"#ffffffd9"});
   d.text("SLIP GAJI",R,48,{size:12,bold:true,color:"#ffffff",align:"right"});d.text("Periode "+blnFull(p.periode),R,64,{size:9,color:"#ffffff",align:"right"});
   // identitas karyawan

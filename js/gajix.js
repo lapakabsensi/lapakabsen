@@ -35,7 +35,7 @@ async function gjPdf(){
     let y=0,pg=0;
     const top=()=>{pg++;if(pg>1)d.addPage();d.rect(0,0,W,58,ac);let tx=M;
       if(lg){const k=Math.min(34/lg.w,34/lg.h),w=lg.w*k,h=lg.h*k;d.rect(M-3,11,w+6,h+6,"#ffffff");d.image(lg,M,14,w,h);tx=M+w+14}
-      d.text(d.fit((COMP&&COMP.name)||"Absensi & Payroll",420,15,true),tx,30,{size:15,bold:true,color:"#ffffff"});
+      d.text(d.fit((COMP&&COMP.name)||"Lapak Absen",420,15,true),tx,30,{size:15,bold:true,color:"#ffffff"});
       d.text("Periode absensi "+plabelOf(PM),tx,46,{size:8.5,color:"#ffffffd9"});
       d.text("REKAP GAJI",R,30,{size:13,bold:true,color:"#ffffff",align:"right"});d.text(per+(gjScope()==="paid"?" - hanya yang sudah ditransfer":""),R,46,{size:8.5,color:"#ffffff",align:"right"});
       y=72;d.rect(M,y,R-M,RH+2,"#f1f5f9");let x=M;
