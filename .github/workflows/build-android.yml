@@ -19,11 +19,16 @@ jobs:
         run: keytool -list -v -keystore app/../release.keystore -storepass android | grep SHA256
       - name: Build APK + AAB
         run: gradle assembleRelease bundleRelease --no-daemon
+      - name: Rename output
+        run: |
+          mkdir -p out
+          cp app/build/outputs/apk/release/*.apk out/Lapak-Absen.apk
+          cp app/build/outputs/bundle/release/*.aab out/Lapak-Absen.aab
       - uses: actions/upload-artifact@v4
         with:
-          name: LapakAbsensi-APK
-          path: android/app/build/outputs/apk/release/*.apk
+          name: Lapak-Absen-APK
+          path: android/out/Lapak-Absen.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: LapakAbsensi-AAB
-          path: android/app/build/outputs/bundle/release/*.aab
+          name: Lapak-Absen-AAB
+          path: android/out/Lapak-Absen.aab

@@ -32,9 +32,9 @@ jobs:
           IN=app/build/outputs/apk/release/app-release-unsigned.apk
           $BT/zipalign -p -f 4 $IN aligned.apk
           $BT/apksigner sign --ks ../../android/release.keystore --ks-key-alias lapakabsensi \
-            --ks-pass pass:android --key-pass pass:android --out Absensi-Capacitor.apk aligned.apk
-          $BT/apksigner verify --print-certs Absensi-Capacitor.apk | head -3
+            --ks-pass pass:android --key-pass pass:android --out Lapak-Absen.apk aligned.apk
+          $BT/apksigner verify --print-certs Lapak-Absen.apk | head -3
       - uses: actions/upload-artifact@v4
         with:
-          name: Absensi-Capacitor-APK
-          path: capacitor/android/Absensi-Capacitor.apk
+          name: Lapak-Absen-APK
+          path: capacitor/android/Lapak-Absen.apk
