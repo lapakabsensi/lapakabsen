@@ -1,0 +1,16 @@
+{
+  "packageId": "io.github.lapakabsensi.twa",
+  "host": "lapakabsensi.github.io",
+  "name": "Absensi & Payroll",
+  "launcherName": "Absensi",
+  "themeColor": "#0d9488",
+  "navigationColor": "#0f766e",
+  "backgroundColor": "#f1f5f9",
+  "startUrl": "/lapakabsensi/",
+  "iconUrl": "https://lapakabsensi.github.io/lapakabsensi/icons/icon-512.png",
+  "maskableIconUrl": "https://lapakabsensi.github.io/lapakabsensi/icons/icon-maskable-512.png",
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1,
+  "shortcuts": [],
+  "generatorApp": "LapakAbsensi Studio"
+}
