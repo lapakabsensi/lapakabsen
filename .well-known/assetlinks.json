@@ -1,1 +1,1 @@
-[{"relation":["delegate_permission/common.handle_all_urls"],"target":{"namespace":"android_app","package_name":"io.github.lapakabsensi.twa","sha256_cert_fingerprints":["AE:70:7D:07:C0:D4:50:0E:AD:83:90:50:0D:14:FE:A7:10:9C:74:7A:E9:37:68:7A:82:CE:D0:EC:1F:54:0C:5E"]}}]
+[{"relation":["delegate_permission/common.handle_all_urls"],"target":{"namespace":"android_app","package_name":"io.github.lapakabsensi.twa","sha256_cert_fingerprints":["5A:0C:B9:65:63:DF:D3:6B:CC:85:B6:58:B9:85:76:52:03:5F:23:18:05:6F:84:65:57:D8:67:5C:55:08:92:D6"]}}]

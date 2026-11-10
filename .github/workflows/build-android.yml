@@ -15,15 +15,32 @@ jobs:
         with: { java-version: '17', distribution: 'temurin' }
       - uses: gradle/actions/setup-gradle@v4
         with: { gradle-version: '8.5' }
+      - name: Siapkan kunci penandatangan (dari GitHub Secrets)
+        working-directory: .
+        env:
+          KS_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
+          KS_PASS: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        run: |
+          if [ -z "$KS_B64" ] || [ -z "$KS_PASS" ]; then
+            echo "::error::Secrets ANDROID_KEYSTORE_B64 dan ANDROID_KEYSTORE_PASSWORD belum dibuat. Lihat android/README.md bagian 'Kunci penandatangan'."; exit 1
+          fi
+          echo "$KS_B64" | base64 -d > "$RUNNER_TEMP/release.jks"
+          echo "KEYSTORE_PATH=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
+          echo "KEYSTORE_PASSWORD=$KS_PASS" >> "$GITHUB_ENV"
       - name: Fingerprint
-        run: keytool -list -v -keystore app/../release.keystore -storepass android | grep SHA256
+        run: keytool -list -v -keystore "$KEYSTORE_PATH" -storepass "$KEYSTORE_PASSWORD" | grep SHA256
       - name: Build APK + AAB
         run: gradle assembleRelease bundleRelease --no-daemon
+      - name: Rename output
+        run: |
+          mkdir -p out
+          cp app/build/outputs/apk/release/*.apk out/Lapak-Absen.apk
+          cp app/build/outputs/bundle/release/*.aab out/Lapak-Absen.aab
       - uses: actions/upload-artifact@v4
         with:
-          name: LapakAbsensi-APK
-          path: android/app/build/outputs/apk/release/*.apk
+          name: Lapak-Absen-APK
+          path: android/out/Lapak-Absen.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: LapakAbsensi-AAB
-          path: android/app/build/outputs/bundle/release/*.aab
+          name: Lapak-Absen-AAB
+          path: android/out/Lapak-Absen.aab
