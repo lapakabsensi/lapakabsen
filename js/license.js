@@ -8,8 +8,11 @@ const seatLeft=()=>TEN?Math.max(0,(+TEN.quota||0)-(+TEN.used||0)):0;
 async function loadTenant(){
   if(window.DEMO_ON){TEN={quota:99,used:0,price:3500,status:"aktif",name:"Demo"};return TEN}
   if(!TENANT)throw new Error("Kode perusahaan belum diisi");
-  const f=firebase.firestore(),d=await f.collection("tenants").doc(TENANT).get();
-  if(!d.exists)throw new Error("Kode perusahaan tidak ditemukan");
+  const f=firebase.firestore();let d=await f.collection("tenants").doc(TENANT).get();
+  if(!d.exists){ // mungkin yang diketik adalah alias/slug: terjemahkan lewat Firestore (tidak bergantung XHR sinkron) lalu muat ulang dengan kode asli
+    try{const a=await f.collection("tenantAlias").doc(TENANT).get(),id=a.exists?String((a.data()||{}).id||"").toLowerCase().replace(/[^a-z0-9]/g,""):"";
+      if(id&&id!==TENANT){const t2=await f.collection("tenants").doc(id).get();if(t2.exists){try{localStorage.setItem("tenantId",id)}catch(e){}location.href=location.pathname+"?c="+id;await new Promise(()=>{})}}}catch(e){}
+    throw new Error("Kode perusahaan tidak ditemukan")}
   TEN={id:d.id,...d.data()};
   if(TEN.status!=="aktif")throw new Error("Akun perusahaan ini sedang dinonaktifkan. Hubungi penyedia layanan.");
   try{if(firebase.auth().currentUser){const p=await f.collection("superMeta").doc("pay").get();if(p.exists)PAY={...PAY_DEF,...p.data()}}}catch(e){}
