@@ -93,7 +93,7 @@ auth.onAuthStateChanged(async u=>{
   else setTimeout(()=>{if(typeof purgeFoto==="function")purgeFoto(false).catch(e=>console.warn("Hapus foto lama:",e))},4000);
 });
 const EMP=[["home","🏠","Beranda"],["absen","📅","Absensi"],["slip","🧾","Slip Gaji"],["permintaan","📝","Permintaan"],["cuti","🏖️","Cuti"],["perbaikan","🛠️","Perbaikan"],["lembur","🌙","Lembur"],["laporan","📊","Laporan"]];
-const ADM=[["home","🏠","Dashboard"],["karyawan","👥","Karyawan"],["password","🔑","Password"],["struktur","🏢","Struktur"],["jadwal","⏰","Jadwal Kerja"],["shift","🔁","Jadwal Shift"],["approval","✅","Persetujuan"],["saldo","🏖️","Saldo Cuti"],["gaji","💰","Penggajian"],["rekap","📊","Rekap Absensi"],["setting","⚙️","Pengaturan"]];
+const ADM=[["home","🏠","Dashboard"],["karyawan","👥","Karyawan"],["password","🔑","Password"],["wajah","🙂","Persetujuan Wajah"],["struktur","🏢","Struktur"],["jadwal","⏰","Jadwal Kerja"],["shift","🔁","Jadwal Shift"],["approval","✅","Persetujuan"],["saldo","🏖️","Saldo Cuti"],["gaji","💰","Penggajian"],["rekap","📊","Rekap Absensi"],["setting","⚙️","Pengaturan"]];
 function buildNav(){const l=needSetup()?[["setup","🔐","Setup Akun"]]:ADMIN()?[...ADM,["myhome","🙋","Absen Saya"],["absen","📅","Riwayat Saya"]]:[...EMP,...(isHR()||ME.isAtasan||ME.role==="atasan"?[["approval","✅","Persetujuan"],["saldo","🏖️","Saldo Cuti"]]:[]),...(isHR()?[["struktur","🏢","Struktur"]]:[])];
   // HP: hanya 4 menu utama + "Lainnya" (sisanya di lembar bawah). Desktop tetap menampilkan semua di sidebar.
   const pri=ADMIN()?["home","karyawan","approval","gaji"]:["home","absen","slip","approval","permintaan"],main=pri.filter(id=>l.some(n=>n[0]===id));
@@ -103,7 +103,7 @@ function buildNav(){const l=needSetup()?[["setup","🔐","Setup Akun"]]:ADMIN()?
   // Admin: sidebar desktop dikelompokkan (Karyawan, Kehadiran, Penggajian, Sistem). Di HP tetap bar bawah 4 menu + Lainnya.
   $("#nav").innerHTML=ADMIN()&&!needSetup()?navGrouped(l,item)+mb:l.map(n=>item(n)).join("")+mb;
   window.NAV_MORE=more;window.NAV_ALL=l;navMark()}
-const NAV_GRP=[["kar","Karyawan",["karyawan","password","struktur"]],["hdr","Kehadiran",["jadwal","shift","approval","saldo","rekap"]],["gj","Penggajian",["gaji","pajak"]],["sys","Sistem",["setting","audit","backup"]],["me","Akun saya",["myhome","absen"]]];
+const NAV_GRP=[["kar","Karyawan",["karyawan","password","wajah","struktur"]],["hdr","Kehadiran",["jadwal","shift","approval","saldo","rekap"]],["gj","Penggajian",["gaji","pajak"]],["sys","Sistem",["setting","audit","backup"]],["me","Akun saya",["myhome","absen"]]];
 const grpOf=id=>{const g=NAV_GRP.find(x=>x[2].includes(id));return g?g[0]:id==="home"?"":"sys"}; // menu baru yang belum terdaftar masuk Sistem
 const navClosed=()=>{try{return JSON.parse(localStorage.getItem("navc")||"[]")}catch(e){return[]}};
 function navGrouped(l,item){
@@ -303,4 +303,4 @@ function rkDl(){
   toast(`${l.length} baris diunduh`);
 }
 
-V.cuti=cutiView;V.shift=shiftView;V.home=homeView;V.gaji=gajiView;V.setting=settingView;V.setup=setupView;V.struktur=strukturView;loadCompany();startUI();
+V.cuti=cutiView;V.shift=shiftView;V.home=homeView;V.gaji=gajiView;V.setting=settingView;V.setup=setupView;V.struktur=strukturView;V.wajah=faceApprovView;loadCompany();startUI();

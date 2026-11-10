@@ -16,8 +16,8 @@
   const tpath=p=>String(p||"").replace(/^tenants\/[^/]+\//,"");   // data tiap pelanggan ada di tenants/<kode>/<koleksi>
   const COLN={users:"Karyawan",attendance:"Absensi",requests:"Pengajuan",settings:"Pengaturan",schedules:"Jadwal Shift",payslips:"Slip Gaji",credentials:"Password",meta:"Setup",audit:"Audit Log"};
   const ACTN={create:"Tambah",update:"Ubah",set:"Simpan",delete:"Hapus",batch:"Massal",export:"Ekspor"};
-  const SECRET=/^(pw|password|faceDesc|slipPin)$/;
-  const PHOTOK=new Set(["inPhoto","midPhoto","aftPhoto","outPhoto","photo","lampiran","surat","avatar","facePhoto"]);
+  const SECRET=/^(pw|password|faceDesc|faceDescPending|slipPin)$/;
+  const PHOTOK=new Set(["inPhoto","midPhoto","aftPhoto","outPhoto","photo","lampiran","surat","avatar","facePhoto","facePhotoPending"]);
   const DEL="(dihapus)";                                   // penanda FieldValue.delete() / field yang hilang
   const FS=firebase.firestore;
   let warned=false;
@@ -225,7 +225,7 @@
 
   // ======================= Halaman Backup =======================
   const BK=[["users","Karyawan"],["settings","Pengaturan"],["attendance","Absensi"],["requests","Pengajuan"],["schedules","Jadwal Shift"],["payslips","Slip Gaji"],["audit","Audit Log"]];
-  const PHOTO_DROP=[...PHOTOK,"faceDesc","faceAt"];
+  const PHOTO_DROP=[...PHOTOK,"faceDesc","faceAt","faceDescPending","facePendingAt"];
   const jsonVal=(k,v)=>v&&typeof v==="object"&&typeof v.toMillis==="function"?{__ts:v.toMillis()}:v;
 
   async function bkFetch(col,withMedia,onN){
