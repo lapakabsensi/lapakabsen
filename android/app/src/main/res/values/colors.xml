@@ -4,5 +4,5 @@
     <color name="colorAccent">#0d9488</color>
     <color name="backgroundColor">#f1f5f9</color>
     <color name="navigationBarColor">#0f766e</color>
-    <color name="splashBg">#000000</color>
+    <color name="splashBg">#FFFFFF</color>
 </resources>
