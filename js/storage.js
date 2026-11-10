@@ -50,7 +50,7 @@ async function setAvatar(inp){
 }
 
 // ---------- Pindahkan foto lama (base64) ke Storage: khusus admin ----------
-const MIG_FIELDS={attendance:["inPhoto","midPhoto","aftPhoto","outPhoto"],requests:["photo","lampiran","surat"],users:["avatar","facePhoto"]};
+const MIG_FIELDS={attendance:["inPhoto","midPhoto","aftPhoto","outPhoto"],requests:["photo","lampiran","surat"],users:["avatar","facePhoto","facePhotoPending"]};
 const migBox=()=>ADMIN()&&!window.DEMO_ON&&!window.NO_STORAGE?`<div class="box"><h3>Pindahkan foto lama ke Storage</h3>
   <p class="mut" style="margin-bottom:12px">Foto absen, lampiran, foto profil, dan foto wajah yang dulu tersimpan sebagai teks di database dipindahkan ke Firebase Storage supaya database tetap ringan. Aman dijalankan berulang: foto yang sudah dipindah dilewati. Biarkan halaman ini terbuka sampai selesai.</p>
   <button class="btn" id="migBtn" onclick="migrasiFoto()">☁️ Mulai pindahkan</button> <span id="migSt" class="mut" style="margin-left:8px"></span></div>`:"";

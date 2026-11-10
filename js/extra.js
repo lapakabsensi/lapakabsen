@@ -8,6 +8,10 @@ addDict({
 "Password lama (dari admin)":["Current password (from admin)","当前密码（管理员提供）"],"Password baru (min 6)":["New password (min 6)","新密码（至少6位）"],"Ulangi password baru":["Repeat new password","重复新密码"],
 "Simpan Password":["Save Password","保存密码"],"Rekam Wajah":["Record Face","录入人脸"],"Password sudah diganti":["Password changed","密码已修改"],"Wajah sudah terekam":["Face registered","人脸已录入"],
 "Wajah":["Face","人脸"],"Reset wajah":["Reset face","重置人脸"],"Scan Wajah & Absen":["Scan Face & Clock","扫脸打卡"],
+"Persetujuan Wajah":["Face Approval","人脸审批"],"Menunggu persetujuan admin":["Waiting for admin approval","等待管理员审批"],
+"Ajukan Wajah":["Submit Face","提交人脸"],"Kirim ulang":["Resubmit","重新提交"],"Setujui":["Approve","批准"],"Tolak":["Reject","驳回"],
+"Belum ada pengajuan wajah":["No face submissions yet","暂无人脸提交"],"Wajah disetujui ✅":["Face approved ✅","人脸已批准 ✅"],
+"Pengajuan ditolak":["Submission rejected","提交已驳回"],"Karyawan terdaftar":["Registered employees","已登记员工"],
 "No. WhatsApp":["WhatsApp number","WhatsApp 号码"],"WhatsApp":["WhatsApp","WhatsApp"],"Lokasi":["Location","位置"],
 "Lock lokasi absen":["Attendance location lock","打卡位置锁定"],"Ikut lock lokasi Jadwal Kerja":["Follow Work Schedule location lock","沿用工作时间的位置锁定"],
 "Lokasi khusus karyawan ini":["Custom location for this employee","该员工专用位置"],"Bebas (tanpa lock lokasi)":["Free (no location lock)","不限制位置"],
@@ -295,18 +299,27 @@ async function captureJob(my){
 }
 
 // ---------- Setup akun karyawan (ganti password + rekam wajah) ----------
+// Karyawan hanya MENGAJUKAN wajah (faceDescPending); baru dipakai mencocokkan absen setelah admin/HR
+// menyetujuinya lewat halaman "Persetujuan Wajah" (approveFace). Ini mencegah karyawan mendaftarkan
+// wajah orang lain sendiri (misal dari foto galeri) tanpa ada yang memverifikasi. Lihat firestore.rules.
 const needSetup=()=>!!ME&&!ADMIN()&&(!ME.pwDone||!(ME.faceDesc&&ME.faceDesc.length>=128));
+let FORCE_ENROLL=false;
 async function setupView(){
   const pwOk=!!ME.pwDone||ADMIN(),faceOk=!!(ME.faceDesc&&ME.faceDesc.length>=128);
-  if(!faceOk)AFTER=startEnroll;
+  const facePend=!faceOk&&!ADMIN()&&!FORCE_ENROLL&&!!(ME.faceDescPending&&ME.faceDescPending.length>=128);
+  if(!faceOk&&!facePend)AFTER=startEnroll;
   return head(ADMIN()?"Rekam Wajah":"Setup Akun",ADMIN()?"Rekam wajahmu dulu supaya bisa absen":"Lengkapi 2 langkah ini sebelum mulai absen")
   +(ADMIN()?"":`<div class="box"><h3>1. Ganti password ${pwOk?"✅":""}</h3>`+(pwOk?`<p class="mut">Password sudah diganti</p>`
     :`<div class="fg">${fld("sp_old","Kode / password lama (dari admin)","password")}${fld("sp_new","Password baru (min 6)","password")}${fld("sp_new2","Ulangi password baru","password")}</div><button class="btn" onclick="savePw()">Simpan Password</button>`)+`</div>`)
   +`<div class="box"><h3>${ADMIN()?"":"2. "}Rekam wajah ${faceOk?"✅":""}</h3>`+(faceOk?`<p class="mut">Wajah sudah terekam</p>`
-    :`<p class="mut" style="margin-bottom:10px">Wajah ini disimpan sebagai data pembanding saat absen. Pastikan wajah terlihat jelas, cahaya cukup, tanpa masker atau kacamata hitam.</p>${scanBox()}<button class="btn" id="bEnroll" disabled onclick="enrollFace()">📸 Rekam Wajah</button>`)+`</div>`;
+    :facePend?`<p class="mut" style="margin-bottom:10px">⏳ Wajah sudah dikirim, menunggu persetujuan admin/HR. Kamu belum bisa absen sampai disetujui.</p><button class="btn ghost" onclick="FORCE_ENROLL=true;render()">📸 Kirim ulang</button>`
+    :`<p class="mut" style="margin-bottom:10px">Wajah ini dikirim untuk disetujui admin/HR sebelum dipakai mencocokkan absen. Pastikan wajah terlihat jelas, cahaya cukup, tanpa masker atau kacamata hitam.</p>${scanBox()}<button class="btn" id="bEnroll" disabled onclick="enrollFace()">📸 ${ADMIN()?"Rekam":"Ajukan"} Wajah</button>`)+`</div>`;
 }
 function afterSetup(){
-  if(needSetup()){toast("Tersimpan ✅ Lanjutkan langkah yang tersisa");render();return}
+  if(needSetup()){
+    const facePend=!ADMIN()&&!(ME.faceDesc&&ME.faceDesc.length>=128)&&!!(ME.faceDescPending&&ME.faceDescPending.length>=128);
+    toast(facePend?"Terkirim ✅ Menunggu persetujuan admin/HR":"Tersimpan ✅ Lanjutkan langkah yang tersisa");render();return;
+  }
   toast("Setup selesai, selamat bekerja! 🎉");stopCam();buildNav();go(ADMIN()?"myhome":"home");
 }
 async function savePw(){
@@ -343,14 +356,52 @@ async function enrollJob(){
     }
     for(let i=0;i<S.length;i++)for(let j=i+1;j<S.length;j++)if(euc(S[i],S[j])>.5)throw new Error("Sampel wajah tidak konsisten. Ulangi dengan posisi stabil dan cahaya cukup.");
     const flat=S.flatMap(d=>Array.from(d,x=>+x.toFixed(4)));
-    const fp=await savePhoto(photo,`face_${Date.now()}.jpg`);await db.collection("users").doc(ME.id).update({faceDesc:flat,facePhoto:fp,faceAt:Date.now()});
-    ME.faceDesc=flat;ME.facePhoto=fp;scanSet("pass","✓ Wajah terekam");scanProg(1);await sleep(900);afterSetup();
+    const fp=await savePhoto(photo,`face_${Date.now()}.jpg`);
+    if(ADMIN()){
+      // admin merekam wajah sendiri: langsung aktif (admin yang jadi penyetuju, tidak ada admin lain yang mengecek)
+      await db.collection("users").doc(ME.id).update({faceDesc:flat,facePhoto:fp,faceAt:Date.now()});
+      ME.faceDesc=flat;ME.facePhoto=fp;scanSet("pass","✓ Wajah terekam");
+    }else{
+      // karyawan: hanya mengajukan. firestore.rules menolak karyawan menulis faceDesc langsung.
+      await db.collection("users").doc(ME.id).update({faceDescPending:flat,facePhotoPending:fp,facePendingAt:Date.now()});
+      ME.faceDescPending=flat;ME.facePhotoPending=fp;scanSet("pass","✓ Terkirim, menunggu persetujuan");
+    }
+    FORCE_ENROLL=false;scanProg(1);await sleep(900);afterSetup();
   }catch(e){scanSet("fail","✗ "+e.message);toast(e.message);st("⚠️ "+e.message);if(b)b.disabled=false;await sleep(1800)}
 }
 async function resetFace(id){
   if(!await uiConfirm("Hapus data wajah karyawan ini? Dia wajib rekam wajah ulang saat login berikutnya."))return;
   const D=firebase.firestore.FieldValue.delete();
-  await db.collection("users").doc(id).update({faceDesc:D,facePhoto:D,faceAt:D});toast("Data wajah direset");render();
+  await db.collection("users").doc(id).update({faceDesc:D,facePhoto:D,faceAt:D,faceDescPending:D,facePhotoPending:D,facePendingAt:D});
+  toast("Data wajah direset");render();
+}
+
+// ---------- Persetujuan wajah (admin): setujui/tolak pengajuan wajah karyawan ----------
+async function faceApprovView(){
+  const us=(await get("users")).filter(u=>u.role!=="admin");
+  const img=p=>p?`<img src="${phSrc(p)}"${phAttr(p)} alt="" style="width:64px;height:64px;object-fit:cover;border-radius:10px;margin-right:10px;cursor:zoom-in;background:#e2e8f0" onclick="photoZoom(this.src)">`:'<span class="mut" style="margin-right:10px;width:64px;display:inline-block;text-align:center">-</span>';
+  const hasFace=u=>!!(u.faceDesc&&u.faceDesc.length>=128),hasPend=u=>!hasFace(u)&&!!(u.faceDescPending&&u.faceDescPending.length>=128);
+  const pend=us.filter(hasPend),ok=us.filter(hasFace),none=us.filter(u=>!hasFace(u)&&!hasPend(u));
+  const row=(u,imgSrc,act)=>`<div class="box" style="display:flex;align-items:center;flex-wrap:wrap;gap:8px"><div style="flex:1;min-width:180px;display:flex;align-items:center">${img(imgSrc)}<div><b>${esc(u.name)}</b><br><small class="mut">${esc(u.dept||u.jabatan||"")}</small></div></div>${act}</div>`;
+  const pendHtml=pend.length?pend.map(u=>row(u,u.facePhotoPending,`<div><button class="btn sm" onclick="approveFace('${u.id}')">✅ Setujui</button> <button class="btn ghost sm" onclick="rejectFace('${u.id}')">✕ Tolak</button></div>`)).join(""):`<p class="mut">Belum ada pengajuan wajah</p>`;
+  const okHtml=ok.length?ok.map(u=>row(u,u.facePhoto,`<button class="btn ghost sm" onclick="resetFace('${u.id}')">♻️ Reset</button>`)).join(""):`<p class="mut">Belum ada</p>`;
+  return head("Persetujuan Wajah","Setujui pengajuan wajah karyawan sebelum dipakai mencocokkan absen")
+    +`<h3 style="margin:18px 0 8px">⏳ Menunggu persetujuan (${pend.length})</h3>${pendHtml}`
+    +`<h3 style="margin:18px 0 8px">✅ Karyawan terdaftar (${ok.length})</h3>${okHtml}`
+    +(none.length?`<h3 style="margin:18px 0 8px">Belum mengajukan (${none.length})</h3><p class="mut">${none.map(u=>esc(u.name)).join(", ")}</p>`:"");
+}
+async function approveFace(id){
+  const u=(await get("users")).find(x=>x.id===id);
+  if(!u||!(u.faceDescPending&&u.faceDescPending.length>=128))return toast("Tidak ada pengajuan wajah untuk disetujui");
+  const D=firebase.firestore.FieldValue.delete();
+  await db.collection("users").doc(id).update({faceDesc:u.faceDescPending,facePhoto:u.facePhotoPending||"",faceAt:Date.now(),faceDescPending:D,facePhotoPending:D,facePendingAt:D});
+  toast("Wajah disetujui ✅");render();
+}
+async function rejectFace(id){
+  if(!await uiConfirm("Tolak pengajuan wajah ini? Karyawan wajib mengirim ulang foto wajahnya."))return;
+  const D=firebase.firestore.FieldValue.delete();
+  await db.collection("users").doc(id).update({faceDescPending:D,facePhotoPending:D,facePendingAt:D});
+  toast("Pengajuan ditolak");render();
 }
 
 // ---------- Absen: cek lokasi + cocokkan wajah ----------

@@ -88,13 +88,18 @@ service cloud.firestore {
     function isHR() { return roleIs('hr'); }
 
     // karyawan hanya boleh ubah foto profil, tandai password sudah diganti,
-    // dan rekam wajah SEKALI (kalau data wajah sudah ada, hanya admin yang bisa reset/ubah)
+    // dan MENGAJUKAN rekam wajah (faceDescPending/facePhotoPending/facePendingAt).
+    // Karyawan TIDAK PERNAH bisa menulis faceDesc/facePhoto/faceAt langsung: field itu baru terisi
+    // kalau admin/HR menyetujui pengajuan (lihat approveFace() di extra.js), jadi karyawan tidak bisa
+    // mendaftarkan wajahnya sendiri dari foto orang lain tanpa ada yang memverifikasi.
+    // Pengajuan hanya bisa dikirim selama belum ada wajah yang disetujui; kalau sudah disetujui,
+    // hanya admin yang bisa reset (menghapus faceDesc) sebelum karyawan bisa mengajukan lagi.
     function selfUpdate(uid) {
       let ch = request.resource.data.diff(resource.data).affectedKeys();
       return request.auth.uid == uid
-        && ch.hasOnly(['avatar', 'pwDone', 'faceDesc', 'facePhoto', 'faceAt', 'slipPin'])
+        && ch.hasOnly(['avatar', 'pwDone', 'faceDescPending', 'facePhotoPending', 'facePendingAt', 'slipPin'])
         && (!ch.hasAny(['pwDone']) || request.resource.data.pwDone == true)
-        && (!ch.hasAny(['faceDesc', 'facePhoto', 'faceAt']) || !('faceDesc' in resource.data));
+        && (!ch.hasAny(['faceDescPending', 'facePhotoPending', 'facePendingAt']) || !('faceDesc' in resource.data));
     }
 
     // absensi karyawan: hanya boleh MEMBUAT dokumen hari itu (absen masuk) dan MENGISI kolom absen berikutnya yang masih kosong.
