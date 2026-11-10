@@ -25,15 +25,8 @@ def native():
     add += '    <uses-feature android:name="android.hardware.location.gps" android:required="false" />\n'
     s = s.replace("</manifest>", add + "</manifest>")
     open(man, "w").write(s)
-    # ikon launcher dari icon.png (hapus ikon adaptif bawaan supaya PNG dipakai)
-    from PIL import Image
-    src = Image.open(os.path.join(HERE, "icon.png")).convert("RGB")
-    shutil.rmtree(os.path.join(res, "mipmap-anydpi-v26"), ignore_errors=True)
-    for d, n in {"mdpi": 48, "hdpi": 72, "xhdpi": 96, "xxhdpi": 144, "xxxhdpi": 192}.items():
-        p = os.path.join(res, f"mipmap-{d}"); os.makedirs(p, exist_ok=True)
-        im = src.resize((n, n), Image.LANCZOS)
-        for nm in ["ic_launcher.png", "ic_launcher_round.png", "ic_launcher_foreground.png"]:
-            im.save(os.path.join(p, nm))
+    # ikon adaptif beresolusi tinggi (override resource bawaan Capacitor)
+    shutil.copytree(os.path.join(HERE, "res"), res, dirs_exist_ok=True)
     print("izin & ikon diatur")
 
 {"web": web, "native": native}[sys.argv[1]]()
