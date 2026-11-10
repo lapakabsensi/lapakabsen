@@ -7,6 +7,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     defaults:
       run:
         working-directory: capacitor
@@ -50,3 +52,10 @@ jobs:
         with:
           name: Lapak-Absen-APK
           path: capacitor/android/Lapak-Absen.apk
+      - name: Terbitkan sebagai Release (link unduh langsung)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete apk-terbaru --cleanup-tag -y --repo "$GITHUB_REPOSITORY" || true
+          gh release create apk-terbaru android/Lapak-Absen.apk --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title "Lapak Absen APK terbaru" --notes "APK Android dari commit ${GITHUB_SHA::7}. Uninstall versi lama sebelum memasang jika kunci tanda tangan berubah."
