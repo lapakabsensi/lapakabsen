@@ -1,0 +1,8 @@
+{
+  "appId": "io.github.lapakabsensi.app",
+  "appName": "Absensi",
+  "webDir": "www",
+  "backgroundColor": "#0d9488",
+  "android": { "allowMixedContent": false },
+  "server": { "androidScheme": "https" }
+}

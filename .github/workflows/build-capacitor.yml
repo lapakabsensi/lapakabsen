@@ -1,0 +1,40 @@
+name: Build Capacitor APK
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths-ignore: ['android/**', '.github/workflows/build-android.yml', '*.md']
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: capacitor
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - uses: actions/setup-java@v4
+        with: { java-version: '17', distribution: 'temurin' }
+      - run: npm install
+      - run: pip install pillow
+      - run: python3 prepare.py web
+      - run: npx cap add android
+      - run: python3 prepare.py native
+      - run: npx cap sync android
+      - name: Build release (unsigned)
+        working-directory: capacitor/android
+        run: ./gradlew assembleRelease --no-daemon
+      - name: Zipalign + sign
+        working-directory: capacitor/android
+        run: |
+          BT=$(ls -d $ANDROID_HOME/build-tools/* | sort -V | tail -1)
+          IN=app/build/outputs/apk/release/app-release-unsigned.apk
+          $BT/zipalign -p -f 4 $IN aligned.apk
+          $BT/apksigner sign --ks ../../android/release.keystore --ks-key-alias lapakabsensi \
+            --ks-pass pass:android --key-pass pass:android --out Absensi-Capacitor.apk aligned.apk
+          $BT/apksigner verify --print-certs Absensi-Capacitor.apk | head -3
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Absensi-Capacitor-APK
+          path: capacitor/android/Absensi-Capacitor.apk
