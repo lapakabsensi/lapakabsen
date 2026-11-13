@@ -122,7 +122,7 @@
     col("settings").work={in:"09:00",out:"18:00",tol:10,cutoff:1,lateFree:3,latePenalty:50000,cutiQuota:12,workDays:6,geoOn:false,
       shifts:[{id:"s_pagi",name:"Pagi",in:"07:00",out:"15:00",tol:null,color:"#0d9488"},{id:"s_siang",name:"Siang",in:"15:00",out:"23:00",tol:null,color:"#2563eb"},{id:"s_malam",name:"Malam",in:"23:00",out:"07:00",tol:null,color:"#7c3aed"}],
       depts:[{name:"Operasional",headId:"u_atasan",hrId:"u_hr"},{name:"Penjualan",headId:"u_atasan",hrId:"u_hr"},{name:"HRD",headId:"",hrId:"u_hr"}]};
-    col("settings").company={name:"Demo Lapak Absen",address:"Jl. Contoh No. 1, Jakarta",logo:"img/logo-demo.png"};
+    col("settings").company={name:"Demo Lapak Absen",address:"Jl. Contoh No. 1, Jakarta",logo:"img/logo-lapak.png"};
     // absensi 95 hari terakhir (Senin-Sabtu), hasil acak tetap per karyawan
     USERS.filter(u=>u.role!=="admin").forEach(u=>{
       const r=rng(u.id),n4=/sales|teknisi/i.test(u.jabatan),hm=m=>`${pad(Math.floor(m/60))}:${pad(m%60)}`;
