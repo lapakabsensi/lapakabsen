@@ -2,7 +2,7 @@
   "appId": "io.github.lapakabsensi.app",
   "appName": "Lapak Absen",
   "webDir": "www",
-  "backgroundColor": "#0d9488",
+  "backgroundColor": "#f97316",
   "android": { "allowMixedContent": false },
   "server": { "androidScheme": "https" }
 }

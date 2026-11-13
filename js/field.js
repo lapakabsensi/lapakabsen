@@ -130,7 +130,7 @@ async function fieldMap(){
   const el=$("#fmap");if(!el||!FLD||!FLD.pos)return;const p=FLD.pos,g=geoFor();
   try{await loadLeaflet()}catch(e){el.innerHTML=`<p class="mut" style="padding:14px">⚠️ Peta tidak termuat. <a target="_blank" rel="noopener" href="https://www.google.com/maps?q=${p.lat},${p.lng}">Buka di Google Maps</a></p>`;return}
   if(!document.body.contains(el))return;
-  const ac=getComputedStyle(document.documentElement).getPropertyValue("--ac").trim()||"#0d9488",pin=e=>L.divIcon({className:"",html:`<div style="font-size:30px;line-height:30px">${e}</div>`,iconSize:[30,30],iconAnchor:[15,28]});
+  const ac=getComputedStyle(document.documentElement).getPropertyValue("--ac").trim()||"#f97316",pin=e=>L.divIcon({className:"",html:`<div style="font-size:30px;line-height:30px">${e}</div>`,iconSize:[30,30],iconAnchor:[15,28]});
   const M=L.map(el).setView([p.lat,p.lng],17);L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap"}).addTo(M);
   const me=L.circle([p.lat,p.lng],{radius:Math.max(10,p.acc||10),color:"#2563eb",weight:1,fillColor:"#2563eb",fillOpacity:.12}).addTo(M);L.marker([p.lat,p.lng],{icon:pin("📍")}).addTo(M);
   if(g){const of=L.circle([g.lat,g.lng],{radius:g.rad,color:ac,weight:2,fillColor:ac,fillOpacity:.15}).addTo(M);L.marker([g.lat,g.lng],{icon:pin("🏢")}).addTo(M);M.fitBounds(L.featureGroup([me,of]).getBounds().pad(.15))}

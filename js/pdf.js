@@ -52,10 +52,10 @@ function pdfLogo(src,max=160){return new Promise(ok=>{if(!src)return ok(null);co
 // ---------- Slip gaji -> PDF ----------
 const pdfRp=n=>"Rp "+Math.round(n||0).toLocaleString("id-ID");
 async function slipBlob(p,u){
-  u=u||{};const d=new MiniPDF(),ac=(COMP&&COMP.color)||"#0d9488",M=44,R=PW-M,ink="#0f172a",mut="#64748b";
+  u=u||{};const d=new MiniPDF(),ac=(COMP&&COMP.color)||"#f97316",M=44,R=PW-M,ink="#0f172a",mut="#64748b";
   // kop
   d.rect(0,0,PW,92,ac);
-  const lg=await pdfLogo((COMP&&COMP.logo)||"img/logo.svg");let tx=M;
+  const lg=await pdfLogo((COMP&&COMP.logo)||"img/logo.png");let tx=M;
   if(lg){const k=Math.min(52/lg.w,52/lg.h),w=lg.w*k,h=lg.h*k;d.rect(M-4,20,w+8,h+8,"#ffffff");d.image(lg,M,24,w,h);tx=M+w+18}
   d.text(d.fit((COMP&&COMP.name)||"Lapak Absen",R-tx,18,true),tx,48,{size:18,bold:true,color:"#ffffff"});
   if(COMP&&COMP.address)d.text(d.fit(COMP.address,R-tx,9,false),tx,64,{size:9,color:"#ffffffd9"});

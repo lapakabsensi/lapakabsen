@@ -28,9 +28,9 @@ async function gjXlsx(){
 async function gjPdf(){
   const{rows,tot}=gjData(gjScope());if(!rows.length)return toast("Belum ada slip yang dihitung untuk periode ini");
   try{
-    const d=new MiniPDF(true),W=d.W,H=d.H,M=28,R=W-M,ac=(COMP&&COMP.color)||"#0d9488",ink="#0f172a",mut="#64748b";
+    const d=new MiniPDF(true),W=d.W,H=d.H,M=28,R=W-M,ac=(COMP&&COMP.color)||"#f97316",ink="#0f172a",mut="#64748b";
     const cols=[["No",20,"c"],["Nama",108,"l"],["Divisi",62,"l"],["Pokok",58,"r"],["Tunjangan",54,"r"],["Bonus",48,"r"],["Lembur",50,"r"],["THR",48,"r"],["Bruto",64,"r"],["BPJS",50,"r"],["PPh 21",48,"r"],["Pot.",50,"r"],["Bersih",66,"r"],["Trf",30,"c"]],
-      src=[0,1,2,4,5,6,7,8,9,10,11,null,14,16],num=n=>Math.round(n).toLocaleString("id-ID"),RH=16,per=blnFull(PM),lg=await pdfLogo((COMP&&COMP.logo)||"img/logo.svg");
+      src=[0,1,2,4,5,6,7,8,9,10,11,null,14,16],num=n=>Math.round(n).toLocaleString("id-ID"),RH=16,per=blnFull(PM),lg=await pdfLogo((COMP&&COMP.logo)||"img/logo.png");
     const val=(v,ci)=>{if(ci===11)return num(v[12]+v[13]);if(ci===13)return v[16]==="Sudah"?"Ya":"-";const x=v[src[ci]];return typeof x==="number"&&ci>2?num(x):String(x)};
     let y=0,pg=0;
     const top=()=>{pg++;if(pg>1)d.addPage();d.rect(0,0,W,58,ac);let tx=M;

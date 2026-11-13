@@ -2,7 +2,7 @@
 // Dimuat setelah pdf.js (MiniPDF) dan license.js (PAY, TEN, window.LICS). Data diambil dari daftar permintaan lisensi yang sedang tampil
 // di menu Lisensi (window.LICS), jadi tidak ada pembacaan Firestore tambahan.
 // Nomor invoice dibentuk dari tanggal permintaan + 6 huruf pertama id dokumen, sehingga sama persis dengan yang tampil di panel Super Admin.
-const LP_AC="#0d9488",LP_INK="#0f172a",LP_MUT="#64748b",LP_LINE="#e2e8f0";
+const LP_AC="#f97316",LP_INK="#0f172a",LP_MUT="#64748b",LP_LINE="#e2e8f0";
 const lpDt=t=>t&&t.toDate?t.toDate():(t instanceof Date?t:null);
 const lpLong=t=>{const d=lpDt(t);return d?d.toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric"}):"-"};
 const lpWhen=t=>{const d=lpDt(t);return d?d.toLocaleString("id-ID",{day:"numeric",month:"long",year:"numeric",hour:"2-digit",minute:"2-digit"}):"-"};
@@ -12,7 +12,7 @@ const lpFind=id=>(window.LICS||[]).find(x=>x.id===id);
 
 async function lpHead(d,title,sub){
   d.rect(0,0,PW,92,LP_AC);
-  const lg=await pdfLogo(window.LP_LOGO||"img/logo.svg");let tx=44;
+  const lg=await pdfLogo(window.LP_LOGO||"img/logo.png");let tx=44;
   if(lg){const k=Math.min(52/lg.w,52/lg.h),w=lg.w*k,h=lg.h*k;d.rect(40,20,w+8,h+8,"#ffffff");d.image(lg,44,24,w,h);tx=44+w+18}
   const co=String(PAY.company||"").trim();                                    // nama perusahaan penyedia (Pengaturan Super Admin)
   d.text(d.fit(co||"Lapak Absen",PW-44-tx-150,18,true),tx,48,{size:18,bold:true,color:"#ffffff"});
@@ -35,9 +35,9 @@ async function licTokBlob(l){
   y=lpRows(d,[["Nama perusahaan",tn],["Kode perusahaan",l.tid||TENANT],["Diminta oleh",l.byName||"-"],["Tanggal permintaan",lpLong(l.ts)]],M,y,140,R-M);
   y+=14;
   // kotak token
-  d.rect(M,y,R-M,104,"#f0fdfa","#99f6e4");
+  d.rect(M,y,R-M,104,"#fff7ed","#fed7aa");
   d.text("TOKEN LISENSI",PW/2,y+26,{size:9.5,bold:true,color:LP_MUT,align:"center"});
-  d.text(String(l.token||"-"),PW/2,y+68,{size:30,bold:true,color:"#0f766e",align:"center"});
+  d.text(String(l.token||"-"),PW/2,y+68,{size:30,bold:true,color:"#c2410c",align:"center"});
   d.text("Rahasiakan token ini. Hanya berlaku untuk perusahaan di atas dan hanya bisa dipakai satu kali.",PW/2,y+90,{size:8.5,color:LP_MUT,align:"center"});
   y+=104+28;
   d.text("Rincian lisensi",M,y,{size:11,bold:true,color:LP_AC});y+=8;d.line(M,y,R,y);y+=20;

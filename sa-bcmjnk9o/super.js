@@ -44,8 +44,8 @@ function newCap(){const ch="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";CAP=Array.from({le
   document.getElementById("capIn").value=""}
 function capOk(){if(document.getElementById("capIn").value.trim().toUpperCase()===CAP)return true;toast("Kode captcha salah");newCap();return false}
 function eye(){const i=document.getElementById("pw"),h=i.type==="password";i.type=h?"text":"password";document.getElementById("eye").textContent=h?"🙈":"👁️"}
-const PAL=[["Teal","#0d9488"],["Indigo","#4f46e5"],["Biru","#2563eb"],["Ungu","#7c3aed"],["Merah muda","#db2777"],["Merah","#dc2626"],["Oranye","#ea580c"],["Hijau","#16a34a"],["Abu gelap","#334155"]];
-let BR={nama:"Super Admin",sub:"Panel Khusus Penyedia Layanan Absen Yuk",hi:"Selamat Datang",color:"#0d9488",logo:""};
+const PAL=[["Oranye Lapak","#f97316"],["Teal","#0d9488"],["Indigo","#4f46e5"],["Biru","#2563eb"],["Ungu","#7c3aed"],["Merah muda","#db2777"],["Merah","#dc2626"],["Oranye","#ea580c"],["Hijau","#16a34a"],["Abu gelap","#334155"]];
+let BR={nama:"Super Admin",sub:"Panel Khusus Penyedia Layanan Absen Yuk",hi:"Selamat Datang",color:"#f97316",logo:""};
 try{BR={...BR,...JSON.parse(localStorage.getItem("sa_brand")||"{}")}}catch(e){}
 function trimImg(src,cb){const im=new Image();im.onload=()=>{try{const w=im.width,h=im.height,c=document.createElement("canvas");c.width=w;c.height=h;const x=c.getContext("2d");x.drawImage(im,0,0);const d=x.getImageData(0,0,w,h).data;const cs=[0,(w-1)*4,(h-1)*w*4,((h-1)*w+w-1)*4],bg=[0,1,2].map(k=>cs.reduce((a,i)=>a+d[i+k],0)/4),ba=cs.reduce((a,i)=>a+d[i+3],0)/4;let x0=w,y0=h,x1=-1,y1=-1;for(let y=0;y<h;y++)for(let q=0;q<w;q++){const i=(y*w+q)*4;if(d[i+3]>20&&(ba<20||Math.abs(d[i]-bg[0])+Math.abs(d[i+1]-bg[1])+Math.abs(d[i+2]-bg[2])>60)){if(q<x0)x0=q;if(q>x1)x1=q;if(y<y0)y0=y;if(y>y1)y1=y}}
  if(x1<0)return cb(src);const bw=x1-x0+1,bh=y1-y0+1,s=Math.min(1,256/Math.max(bw,bh)),o=document.createElement("canvas");o.width=Math.round(bw*s);o.height=Math.round(bh*s);o.getContext("2d").drawImage(c,x0,y0,bw,bh,0,0,o.width,o.height);cb(o.toDataURL("image/png"))}catch(e){cb(src)}};im.onerror=()=>cb(src);im.src=src}
@@ -116,7 +116,7 @@ function bellGo(){$("#bdd").style.display="none";go("lic")}
 document.addEventListener("click",e=>{const d=$("#bdd");if(d&&d.style.display==="block"&&!d.contains(e.target)&&!e.target.closest("#bell"))d.style.display="none"});
 // ---- PDF invoice / token lisensi (memakai js/licpdf.js yang sama dengan sisi pelanggan) ----
 const licMo=l=>lmo(l);var TEN=null,TENANT="";
-Object.defineProperty(window,"LP_LOGO",{get:()=>BR.logo||"../img/logo.svg"});
+Object.defineProperty(window,"LP_LOGO",{get:()=>BR.logo||"../img/logo.png"});
 async function render(){const v=$("#view");v.innerHTML='<p class="mut">Memuat...</p>';try{v.innerHTML=await({lic:renderLic,ten:renderTen,bak:renderBak,set:renderSet}[tab])()}catch(e){v.innerHTML=`<div class="box">Error: ${esc(e.message)}</div>`}}
 async function loadTens(){TENS=(await db.collection("tenants").get()).docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>String(a.name).localeCompare(String(b.name)))}
 const tname=id=>(TENS.find(t=>t.id===id)||{}).name||id;

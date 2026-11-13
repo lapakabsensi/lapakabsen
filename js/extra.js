@@ -67,7 +67,7 @@ function setGeo(p,la,ln,fit){
   g("lat").value=la.toFixed(6);g("lng").value=ln.toFixed(6);g("txt").textContent=`📌 Titik terpilih: ${la.toFixed(6)}, ${ln.toFixed(6)}`;
   if(!M)return;
   if(!el._mk){
-    const ac=getComputedStyle(document.documentElement).getPropertyValue("--ac").trim()||"#0d9488";
+    const ac=getComputedStyle(document.documentElement).getPropertyValue("--ac").trim()||"#f97316";
     el._mk=L.marker([la,ln],{draggable:true,icon:L.divIcon({className:"",html:'<div style="font-size:32px;line-height:32px">📍</div>',iconSize:[32,32],iconAnchor:[16,30]})}).addTo(M);
     el._mk.on("dragend",()=>{const c=el._mk.getLatLng();setGeo(p,c.lat,c.lng)});
     el._ci=L.circle([la,ln],{radius:geoRad(p),color:ac,weight:2,fillColor:ac,fillOpacity:.18}).addTo(M);

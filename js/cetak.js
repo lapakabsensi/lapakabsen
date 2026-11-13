@@ -8,8 +8,8 @@ const cpName=s=>String(s||"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/
 
 // o = {title, sub, land, fs, summary:[teks], sections:[{h, cols:[[label,bobot,"l|r|c"]], rows:[[...]], foot:[...]|null, empty}], note, file, docTitle}
 async function pdfReport(o){
-  const d=new MiniPDF(!!o.land),W=d.W,H=d.H,M=o.land?28:40,R=W-M,ac=(COMP&&COMP.color)||"#0d9488",ink="#0f172a",mut="#64748b",
-    fs=o.fs||(o.land?7.5:8.5),RH=o.land?16:17,lg=await pdfLogo((COMP&&COMP.logo)||"img/logo.svg");
+  const d=new MiniPDF(!!o.land),W=d.W,H=d.H,M=o.land?28:40,R=W-M,ac=(COMP&&COMP.color)||"#f97316",ink="#0f172a",mut="#64748b",
+    fs=o.fs||(o.land?7.5:8.5),RH=o.land?16:17,lg=await pdfLogo((COMP&&COMP.logo)||"img/logo.png");
   let y=0,pg=0,cur=null;
   const al=(a,x,w)=>a==="r"?x+w-4:a==="c"?x+w/2:x+4,aa=a=>a==="r"?"right":a==="c"?"center":"left";
   const thead=()=>{d.rect(M,y,R-M,RH+2,"#f1f5f9");let x=0;cur.cols.forEach(([t,,a],i)=>{const w=cur.cw[i];d.text(d.fit(t,w-6,fs,true),al(a,M+x,w),y+RH-4,{size:fs,bold:true,color:ac,align:aa(a)});x+=w});y+=RH+2};

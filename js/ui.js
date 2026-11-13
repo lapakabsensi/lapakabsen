@@ -74,22 +74,22 @@ function trimLogo(src){if(!src||src.slice(0,5)!=="data:")return Promise.resolve(
     for(let y=0;y<h;y++)for(let q=0;q<w;q++){const i=(y*w+q)*4;if(d[i+3]>20&&(ba<20||Math.abs(d[i]-bg[0])+Math.abs(d[i+1]-bg[1])+Math.abs(d[i+2]-bg[2])>60)){if(q<x0)x0=q;if(q>x1)x1=q;if(y<y0)y0=y;if(y>y1)y1=y}}
     if(x1>=0){const bw=x1-x0+1,bh=y1-y0+1;if(bw*bh<w*h*0.92){const o=document.createElement("canvas");o.width=bw;o.height=bh;o.getContext("2d").drawImage(c,x0,y0,bw,bh,0,0,bw,bh);out=o.toDataURL("image/png")}}}catch(e){}
     TRIMC[k]=out;ok(out)};im.onerror=()=>ok(src);im.src=src})}
-async function applyLogos(){const lg=COMP.logo||"img/logo.svg",im=document.querySelector(".brand img");if(!im)return;
+async function applyLogos(){const lg=COMP.logo||"img/logo.png",im=document.querySelector(".brand img");if(!im)return;
   im.src=COMP.logoDark||lg;LOGO_CLS=COMP.logoDark?"":toneCls(await logoTone(lg));im.className=LOGO_CLS;const ll=document.getElementById("lLogo");if(ll)ll.className=LOGO_CLS;cacheBrand();
   trimLogo(COMP.logoDark||lg).then(u=>{if(u!==im.src)im.src=u});if(ll)trimLogo(lg).then(u=>{if(u!==ll.src)ll.src=u})}
-function applyBrand(){const n=COMP.name||"Lapak Absen",lg=COMP.logo||"img/logo.svg";document.title=n;const fi=document.querySelector("link[rel=icon]");if(fi){fi.removeAttribute("type");fi.href=lg;}
+function applyBrand(){const n=COMP.name||"Lapak Absen",lg=COMP.logo||"img/logo.png";document.title=n;const fi=document.querySelector("link[rel=icon]");if(fi){fi.removeAttribute("type");fi.href=lg;}
   if(COMP.color)applyTheme(COMP.color,COMP.color2,COMP.grad);
   document.getElementById("lLogo").src=lg;document.getElementById("lName").textContent=n;document.getElementById("lAddr").textContent=COMP.address||"";
   document.querySelector(".brand").innerHTML=`<img src="${COMP.logoDark||lg}" alt="" class="${LOGO_CLS}">${esc(COMP.name||"Absensi")}`;applyLogos();if(typeof pwaBrand==="function")pwaBrand()}
 let LOGOD=null;
-async function settingView(){LOGO=COMP.logo||null;LOGOD=COMP.logoDark||null;THEME={c1:COMP.color||"#0d9488",c2:COMP.color2||COMP.color||"#0d9488",grad:!!COMP.grad};
+async function settingView(){LOGO=COMP.logo||null;LOGOD=COMP.logoDark||null;THEME={c1:COMP.color||"#f97316",c2:COMP.color2||COMP.color||"#f97316",grad:!!COMP.grad};
   AFTER=prevLogos;
   return head("Pengaturan","Tampilan & identitas perusahaan")+`<div class="box"><div class="fg">${fld("c_name","Nama perusahaan","text",0,COMP.name||"")}${fld("c_addr","Alamat","text",0,COMP.address||"")}${colorField()}</div>
   <div class="f"><label>Logo perusahaan</label><div class="lgrow">
-  <div class="lgcard"><b class="lgt">Logo utama</b><small class="mut lgh">Pratinjau di latar terang.</small><div class="lgprev"><div class="lgtile"><img id="c_prev" src="${COMP.logo||"img/logo.svg"}" alt=""></div></div><div class="lgact"><input type="file" accept="image/*" onchange="pickLogo(this)"></div></div>
-  <div class="lgcard"><b class="lgt">Logo untuk latar gelap <span class="mut">(opsional)</span></b><small class="mut lgh">Pratinjau di sidebar (latar gelap). Kosong = logo utama otomatis diberi bingkai terang. Unggah versi terang/putih agar tampil polos.</small><div class="lgprev"><div class="lgtile dk"><img id="c_prevd" src="${COMP.logoDark||COMP.logo||"img/logo.svg"}" alt=""></div><button type="button" class="btn ghost sm" onclick="LOGOD=null;prevLogos()">Hapus logo gelap</button></div><div class="lgact"><input type="file" accept="image/*" onchange="pickLogoDark(this)"></div></div></div></div><button class="btn" onclick="saveCompany()">Simpan</button></div>`+pwaIconBox()+tjMasterBox()}
+  <div class="lgcard"><b class="lgt">Logo utama</b><small class="mut lgh">Pratinjau di latar terang.</small><div class="lgprev"><div class="lgtile"><img id="c_prev" src="${COMP.logo||"img/logo.png"}" alt=""></div></div><div class="lgact"><input type="file" accept="image/*" onchange="pickLogo(this)"></div></div>
+  <div class="lgcard"><b class="lgt">Logo untuk latar gelap <span class="mut">(opsional)</span></b><small class="mut lgh">Pratinjau di sidebar (latar gelap). Kosong = logo utama otomatis diberi bingkai terang. Unggah versi terang/putih agar tampil polos.</small><div class="lgprev"><div class="lgtile dk"><img id="c_prevd" src="${COMP.logoDark||COMP.logo||"img/logo.png"}" alt=""></div><button type="button" class="btn ghost sm" onclick="LOGOD=null;prevLogos()">Hapus logo gelap</button></div><div class="lgact"><input type="file" accept="image/*" onchange="pickLogoDark(this)"></div></div></div></div><button class="btn" onclick="saveCompany()">Simpan</button></div>`+pwaIconBox()+tjMasterBox()}
 async function prevLogos(){const a=document.getElementById("c_prev"),b=document.getElementById("c_prevd");if(!a||!b)return;
-  a.src=LOGO||"img/logo.svg";b.src=LOGOD||LOGO||"img/logo.svg";b.className=LOGOD?"":toneCls(await logoTone(LOGO||"img/logo.svg"))}
+  a.src=LOGO||"img/logo.png";b.src=LOGOD||LOGO||"img/logo.png";b.className=LOGOD?"":toneCls(await logoTone(LOGO||"img/logo.png"))}
 // logo disimpan tajam (hingga 720px) tapi tetap muat di dokumen Firestore (<~300 KB per logo)
 async function logoData(f){let d;for(const m of [720,560,420,320,256]){d=await imgData(f,m,false,"image/png");if(d.length<300000)break}return d}
 async function pickLogo(i){if(i.files[0]){LOGO=await logoData(i.files[0]);prevLogos()}}
@@ -117,9 +117,9 @@ Object.assign(DICT,{"Tambah tunjangan":["Add allowance","添加津贴"],"Jenis t
 Object.assign(DICT,{"Toleransi terlambat khusus (menit, opsional)":["Custom late tolerance (minutes, optional)","特殊迟到容忍（分钟，可选）"],"toleransi":["tolerance","容忍"],"menit":["min","分钟"]});
 
 const TT=(i,e,z)=>({id:i,en:e,zh:z}[LANG]);
-const COLORS=[["#0d9488","Teal"],["#16a34a","Hijau"],["#0891b2","Cyan"],["#2563eb","Biru"],["#4f46e5","Indigo"],["#7c3aed","Ungu"],["#db2777","Pink"],["#dc2626","Merah"],["#ea580c","Oranye"],["#d97706","Amber"],["#92400e","Coklat"],["#475569","Slate"]];
-const GRADS=[["Aurora","#06b6d4","#7c3aed"],["Samudra","#0ea5e9","#1d4ed8"],["Senja","#f97316","#db2777"],["Api","#f59e0b","#dc2626"],["Hutan","#16a34a","#0d9488"],["Mint","#10b981","#0891b2"],["Berry","#db2777","#7c3aed"],["Royal","#4f46e5","#9333ea"],["Emas","#f59e0b","#c2410c"],["Malam","#475569","#1e293b"]];
-let THEME={c1:"#0d9488",c2:"#0d9488",grad:false};
+const COLORS=[["#f97316","Oranye Lapak"],["#0b2a5b","Navy"],["#0d9488","Teal"],["#16a34a","Hijau"],["#0891b2","Cyan"],["#2563eb","Biru"],["#4f46e5","Indigo"],["#7c3aed","Ungu"],["#db2777","Pink"],["#dc2626","Merah"],["#ea580c","Oranye tua"],["#d97706","Amber"],["#92400e","Coklat"],["#475569","Slate"]];
+const GRADS=[["Lapak","#f97316","#0b2a5b"],["Aurora","#06b6d4","#7c3aed"],["Samudra","#0ea5e9","#1d4ed8"],["Senja","#f97316","#db2777"],["Api","#f59e0b","#dc2626"],["Hutan","#16a34a","#0d9488"],["Mint","#10b981","#0891b2"],["Berry","#db2777","#7c3aed"],["Royal","#4f46e5","#9333ea"],["Emas","#f59e0b","#c2410c"],["Malam","#475569","#1e293b"]];
+let THEME={c1:"#f97316",c2:"#f97316",grad:false};
 const themeKey=()=>THEME.grad?"g:"+THEME.c1.toLowerCase()+"|"+THEME.c2.toLowerCase():"s:"+THEME.c1.toLowerCase();
 function colorField(){const k=themeKey();
   return `<div class="f" style="grid-column:1/-1"><label>Warna tema</label><div class="sw"><span class="swl">Warna solid</span>${COLORS.map(c=>`<span class="swc${k==="s:"+c[0]?" on":""}" data-k="s:${c[0]}" style="background:${c[0]}" title="${c[1]}" onclick="pickColor('${c[0]}')"></span>`).join("")}<input type="color" id="c_color" value="${THEME.c1}" oninput="pickColor(this.value)" title="Warna lain">

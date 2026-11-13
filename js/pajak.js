@@ -72,7 +72,7 @@ async function pajakXlsx(){
 async function pajakPdf(i){
   const L=i==null?TAXY.rows:[TAXY.rows[i]];if(!L.length||!L[0])return toast("Belum ada data");
   try{
-    const d=new MiniPDF(),W=d.W,H=d.H,M=44,Rr=W-M,ac=(COMP&&COMP.color)||"#0d9488",ink="#0f172a",mut="#64748b",lg=await pdfLogo((COMP&&COMP.logo)||"img/logo.svg");
+    const d=new MiniPDF(),W=d.W,H=d.H,M=44,Rr=W-M,ac=(COMP&&COMP.color)||"#f97316",ink="#0f172a",mut="#64748b",lg=await pdfLogo((COMP&&COMP.logo)||"img/logo.png");
     L.forEach((r,k)=>{
       if(k)d.addPage();
       d.rect(0,0,W,78,ac);let tx=M;
