@@ -240,7 +240,7 @@ let LG=null,LG_T=null,LG_LAST=null;
 function licLockShow(t){
   if(document.getElementById("lglock"))return;
   const off=t&&t.status!=="aktif",d=document.createElement("div");d.id="lglock";
-  d.style.cssText="position:fixed;inset:0;z-index:10000;background:#0f172a;display:grid;place-items:center;padding:20px;font-family:system-ui,sans-serif";
+  d.style.cssText="position:fixed;inset:0;z-index:10000;background:#0b1f3f;display:grid;place-items:center;padding:20px;font-family:system-ui,sans-serif";
   d.innerHTML=`<div style="background:#fff;border-radius:16px;padding:28px;max-width:400px;width:100%;text-align:center"><div style="font-size:44px">🔒</div><h2 style="margin:8px 0 6px">Akses dikunci</h2><p style="color:#64748b;margin:0 0 16px;font-size:14px;line-height:1.55">${off?"Akun perusahaan ini sedang dinonaktifkan.":"Lisensi perusahaan sudah berakhir atau dinonaktifkan."} Akun pegawai tidak bisa dipakai sampai lisensi diperpanjang atau diaktifkan lagi. Silakan hubungi admin perusahaan Anda.</p><button id="lgre" style="width:100%;padding:12px;border:0;border-radius:10px;background:#f97316;color:#fff;font:inherit;font-weight:600;cursor:pointer">Coba lagi</button></div>`;
   document.body.appendChild(d);document.getElementById("lgre").onclick=()=>location.reload();
   try{reveal()}catch(e){}

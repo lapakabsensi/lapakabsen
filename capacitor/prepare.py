@@ -27,6 +27,22 @@ def native():
     open(man, "w").write(s)
     # ikon adaptif beresolusi tinggi (override resource bawaan Capacitor)
     shutil.copytree(os.path.join(HERE, "res"), res, dirs_exist_ok=True)
+    # splash bawaan Capacitor (logo "X" biru) diganti logo Lapak Absen di atas latar putih
+    try:
+        from PIL import Image
+        logo = Image.open(os.path.join(ROOT, "img", "logo.png")).convert("RGB")
+        n = 0
+        for d in sorted(os.listdir(res)):
+            f = os.path.join(res, d, "splash.png")
+            if d.startswith("drawable") and os.path.isfile(f):
+                w, h = Image.open(f).size
+                s = int(min(w, h) * 0.42)
+                canvas = Image.new("RGB", (w, h), (255, 255, 255))
+                canvas.paste(logo.resize((s, s), Image.LANCZOS), ((w - s) // 2, (h - s) // 2))
+                canvas.save(f, optimize=True); n += 1
+        print("splash diganti:", n)
+    except Exception as e:
+        print("splash dilewati:", e)
     print("izin & ikon diatur")
 
 {"web": web, "native": native}[sys.argv[1]]()

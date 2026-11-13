@@ -13,7 +13,7 @@ let TENANT=(function(){
 const tdb=raw=>window.DEMO_ON?raw:new Proxy(raw,{get:(t,k)=>k==="collection"?n=>t.collection("tenants").doc(TENANT||"_").collection(n):(typeof t[k]==="function"?t[k].bind(t):t[k])});
 function tenantGate(msg){
   if(document.getElementById("tgate"))return;
-  const d=document.createElement("div");d.id="tgate";d.style.cssText="position:fixed;inset:0;z-index:9999;background:#0f172a;display:grid;place-items:center;padding:20px;font-family:system-ui,sans-serif";
+  const d=document.createElement("div");d.id="tgate";d.style.cssText="position:fixed;inset:0;z-index:9999;background:#0b1f3f;display:grid;place-items:center;padding:20px;font-family:system-ui,sans-serif";
   d.innerHTML=`<div style="background:#fff;border-radius:16px;padding:28px;max-width:380px;width:100%"><h2 style="margin:0 0 6px">Kode perusahaan</h2><p style="color:#64748b;margin:0 0 14px;font-size:14px">${msg||"Masukkan kode perusahaan yang diberikan penyedia layanan."}</p><input id="tgc" placeholder="contoh: k7m2xq9a" style="width:100%;padding:11px 12px;border:1px solid #cbd5e1;border-radius:10px;font:inherit;margin-bottom:12px"><button id="tgb" style="width:100%;padding:12px;border:0;border-radius:10px;background:#f97316;color:#fff;font:inherit;font-weight:600;cursor:pointer">Lanjut</button></div>`;
   document.body.appendChild(d);
   const go=()=>{const v=document.getElementById("tgc").value.trim().toLowerCase().replace(/[^a-z0-9]/g,"");if(!v)return;try{localStorage.setItem("tenantId",v)}catch(e){}location.href=location.pathname+"?c="+v};
